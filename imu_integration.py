@@ -90,9 +90,9 @@ def main():
     config = CppConfig()
     start = time.time()
     cg = Codegen.function(func=integrate_imu, config=config)
-    cg.generate_function(output_dir=THIS_DIR, skip_directory_nesting=True)
+    cg.generate_function(output_dir=THIS_DIR / "output" / "integrate_imu", skip_directory_nesting=True)
     end = time.time()
-    print(f'elapsed time: {end - start}')
+    print(f'Elapsed time: {end - start}')
 
 
 if __name__ == '__main__':
