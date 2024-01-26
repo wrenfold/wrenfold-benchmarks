@@ -1,4 +1,3 @@
-
 # Google benchmark
 function(add_google_benchmark)
   set(BENCHMARK_ENABLE_TESTING
@@ -25,3 +24,19 @@ function(add_eigen)
   endif()
 endfunction()
 add_eigen()
+
+# Create an interface library so we can import a couple of symforce types.
+function(add_symforce_lib)
+  add_library(symforce INTERFACE)
+  target_include_directories(
+    symforce
+    INTERFACE
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/symforce/third_party/skymarshal/include>
+      $<INSTALL_INTERFACE:include>)
+  target_include_directories(
+    symforce
+    INTERFACE
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/symforce/third_party/eigen_lcm/lcmtypes/eigen_lcm_lcm/cpp>
+      $<INSTALL_INTERFACE:include>)
+endfunction()
+add_symforce_lib()
