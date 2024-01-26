@@ -4,7 +4,7 @@ else()
   set(WARNING_FLAGS -Wall -Wextra -pedantic -Werror -Wno-sign-compare)
 endif()
 
-function(add_benchmark SOURCE_FILE INCLUDE_PATH)
+function(add_benchmark SOURCE_FILE)
   # get just the filename w/o extension
   get_filename_component(BENCH_NAME ${SOURCE_FILE} NAME_WE)
 
@@ -15,5 +15,5 @@ function(add_benchmark SOURCE_FILE INCLUDE_PATH)
   target_compile_options(${BENCH_NAME} PRIVATE ${WARNING_FLAGS})
   target_compile_features(${BENCH_NAME} PUBLIC cxx_std_17)
   target_compile_definitions(${BENCH_NAME} PRIVATE -DSKYMARSHAL_PRINTING_ENABLED -DMATH_SPAN_EIGEN_SUPPORT -DNDEBUG)
-  target_include_directories(${BENCH_NAME} PRIVATE ${INCLUDE_PATH})
+  target_include_directories(${BENCH_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/output")
 endfunction()

@@ -1,17 +1,15 @@
 // Bencmark quaternion interpolation method.
+#include <iostream>
 #include <random>
 #include <vector>
-#include <iostream>
 
 #include <benchmark/benchmark.h>
 
 #include "wf_runtime/span_eigen.h"
 
-#include "output/quat_interpolation/quat_interpolate_chain.h"
-#include "output/quat_interpolation/quat_interpolate_first_order.h"
-#include "output/quat_interpolation/quat_interpolate_wf.h"
-
-
+#include "quat_interpolation/quat_interpolate_chain.h"
+#include "quat_interpolation/quat_interpolate_first_order.h"
+#include "quat_interpolation/quat_interpolate_wf.h"
 
 std::vector<Eigen::Vector4d> generate_quaternions(int num_samples) {
   std::default_random_engine engine{0};
@@ -30,7 +28,6 @@ static void BM_QuatInterpolationSymforceChain(benchmark::State& state) {
   const auto inputs = generate_quaternions(num_samples);
 
   std::size_t index = 0;
-  // double sum = 0.0;
   for (auto _ : state) {
     Eigen::Vector4d q_out;
     Eigen::Matrix3d D0_out;
@@ -41,14 +38,11 @@ static void BM_QuatInterpolationSymforceChain(benchmark::State& state) {
     benchmark::DoNotOptimize(D0_out);
     benchmark::DoNotOptimize(D1_out);
 
-    // sum += q_out.sum();
-    // sum += D0_out.sum();
-    // sum += D1_out.sum();
-
     index++;
-    index = (index % inputs.size());
+    if (index + 1 >= inputs.size()) {
+      index = 0;
+    }
   }
-  // benchmark::DoNotOptimize(sum);
 }
 
 static void BM_QuatInterpolationSymforceFirstOrder(benchmark::State& state) {
@@ -56,25 +50,21 @@ static void BM_QuatInterpolationSymforceFirstOrder(benchmark::State& state) {
   const auto inputs = generate_quaternions(num_samples);
 
   std::size_t index = 0;
-  // double sum = 0.0;
   for (auto _ : state) {
     Eigen::Vector4d q_out;
     Eigen::Matrix3d D0_out;
     Eigen::Matrix3d D1_out;
-    sym::QuatInterpolateFirstOrder(inputs[index], inputs[index + 1], 0.312, &q_out, &D0_out, &D1_out);
+    sym::QuatInterpolateFirstOrder(inputs[index], inputs[index + 1], 0.312, &q_out, &D0_out,
+                                   &D1_out);
 
     benchmark::DoNotOptimize(q_out);
     benchmark::DoNotOptimize(D0_out);
     benchmark::DoNotOptimize(D1_out);
-
-    // sum += q_out.sum();
-    // sum += D0_out.sum();
-    // sum += D1_out.sum();
-
     index++;
-    index = (index % inputs.size());
+    if (index + 1 >= inputs.size()) {
+      index = 0;
+    }
   }
-  // benchmark::DoNotOptimize(sum);
 }
 
 static void BM_QuatInterpolationWrenfold(benchmark::State& state) {
@@ -82,7 +72,6 @@ static void BM_QuatInterpolationWrenfold(benchmark::State& state) {
   const auto inputs = generate_quaternions(num_samples);
 
   std::size_t index = 0;
-  // double sum = 0.0;
   for (auto _ : state) {
     Eigen::Vector4d q_out;
     Eigen::Matrix3d D0_out;
@@ -93,18 +82,16 @@ static void BM_QuatInterpolationWrenfold(benchmark::State& state) {
     benchmark::DoNotOptimize(D0_out);
     benchmark::DoNotOptimize(D1_out);
 
-    // sum += q_out.sum();
-    // sum += D0_out.sum();
-    // sum += D1_out.sum();
-
     index++;
-    index = (index % inputs.size());
+    if (index + 1 >= inputs.size()) {
+      index = 0;
+    }
   }
-  // benchmark::DoNotOptimize(sum);
 }
 
 BENCHMARK(BM_QuatInterpolationSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatInterpolationSymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatInterpolationSymforceFirstOrder)
+    ->Iterations(1000000)
+    ->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolationWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-
 BENCHMARK_MAIN();

@@ -9,4 +9,5 @@ add_subdirectory(dependencies)
 
 include(functions.cmake)
 
-add_benchmark(quat_interpolation.cc output/quat_interpolation/cpp)
+add_benchmark(quat_interpolation.cc)
+add_benchmark(imu_integration.cc)

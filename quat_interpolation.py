@@ -69,7 +69,7 @@ def main():
     inputs = symbolic_inputs(quat_interpolate_first_order)
     cg = Codegen(
         inputs,
-        outputs=quat_interpolate(**inputs, jacobian_method="first_order"),
+        outputs=quat_interpolate_first_order(**inputs),
         config=config,
         name="quat_interpolate_first_order",
         return_key=None,
