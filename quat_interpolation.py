@@ -9,7 +9,7 @@ symforce.set_symbolic_api("symengine")
 from symforce import geo
 from symforce import typing as T
 from symforce.codegen import Codegen, CppConfig
-from symforce.jacobian_helpers import tangent_jacobians_chain_rule
+from symforce.jacobian_helpers import tangent_jacobians_chain_rule, tangent_jacobians_first_order
 from symforce.values import Values
 from symforce.type_helpers import symbolic_inputs
 
