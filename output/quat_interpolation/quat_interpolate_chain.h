@@ -24,11 +24,11 @@ namespace sym {
  *     D1: Matrix33
  */
 template <typename Scalar>
-void QuatInterpolate(const Eigen::Matrix<Scalar, 4, 1>& q0_xyzw,
-                     const Eigen::Matrix<Scalar, 4, 1>& q1_xyzw, const Scalar alpha,
-                     Eigen::Matrix<Scalar, 4, 1>* const q_out = nullptr,
-                     Eigen::Matrix<Scalar, 3, 3>* const D0 = nullptr,
-                     Eigen::Matrix<Scalar, 3, 3>* const D1 = nullptr) {
+void QuatInterpolateChain(const Eigen::Matrix<Scalar, 4, 1>& q0_xyzw,
+                          const Eigen::Matrix<Scalar, 4, 1>& q1_xyzw, const Scalar alpha,
+                          Eigen::Matrix<Scalar, 4, 1>* const q_out = nullptr,
+                          Eigen::Matrix<Scalar, 3, 3>* const D0 = nullptr,
+                          Eigen::Matrix<Scalar, 3, 3>* const D1 = nullptr) {
   // Total ops: 1824
 
   // Input arrays
