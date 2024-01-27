@@ -4,6 +4,14 @@ else()
   set(WARNING_FLAGS -Wall -Wextra -pedantic -Werror -Wno-sign-compare)
 endif()
 
+function(add_compilation_options TARGET_NAME)
+  target_link_libraries(${TARGET_NAME} benchmark::benchmark eigen symforce wf_runtime)
+  target_compile_options(${TARGET_NAME} PRIVATE ${WARNING_FLAGS} -O3)
+  target_compile_features(${TARGET_NAME} PUBLIC cxx_std_17)
+  target_compile_definitions(${TARGET_NAME} PRIVATE -DSKYMARSHAL_PRINTING_ENABLED -DMATH_SPAN_EIGEN_SUPPORT -DNDEBUG)
+  target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/output")
+endfunction()
+
 function(add_benchmark SOURCE_FILE)
   # get just the filename w/o extension
   get_filename_component(BENCH_NAME ${SOURCE_FILE} NAME_WE)
@@ -11,9 +19,9 @@ function(add_benchmark SOURCE_FILE)
   # add test executable for every file
   message(STATUS "Adding benchmark: ${BENCH_NAME}")
   add_executable(${BENCH_NAME} ${SOURCE_FILE})
-  target_link_libraries(${BENCH_NAME} benchmark::benchmark eigen symforce wf_runtime)
-  target_compile_options(${BENCH_NAME} PRIVATE ${WARNING_FLAGS}) #  "-march=native"
-  target_compile_features(${BENCH_NAME} PUBLIC cxx_std_17)
-  target_compile_definitions(${BENCH_NAME} PRIVATE -DSKYMARSHAL_PRINTING_ENABLED -DMATH_SPAN_EIGEN_SUPPORT -DNDEBUG)
-  target_include_directories(${BENCH_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/output")
+  add_compilation_options(${BENCH_NAME})
+
+  add_executable(${BENCH_NAME}_native ${SOURCE_FILE})
+  add_compilation_options(${BENCH_NAME}_native)
+  target_compile_options(${BENCH_NAME}_native PRIVATE "-march=native")
 endfunction()
