@@ -9,6 +9,7 @@
 
 #include "quat_interpolation/quat_interpolate_chain.h"
 #include "quat_interpolation/quat_interpolate_first_order.h"
+#include "quat_interpolation/quat_interpolate_no_conditional_wf.h"
 #include "quat_interpolation/quat_interpolate_wf.h"
 
 std::vector<Eigen::Vector4d> generate_quaternions(int num_samples) {
@@ -261,6 +262,29 @@ static void BM_QuatInterpolationWrenfold(benchmark::State& state) {
   }
 }
 
+static void BM_QuatInterpolationWrenfoldNoConditional(benchmark::State& state) {
+  constexpr std::size_t num_samples = 1000;
+  const auto inputs = generate_quaternions(num_samples);
+
+  std::size_t index = 0;
+  for (auto _ : state) {
+    Eigen::Vector4d q_out;
+    Eigen::Matrix3d D0_out;
+    Eigen::Matrix3d D1_out;
+    gen::quaternion_interpolation_no_conditional(inputs[index], inputs[index + 1], 0.312, q_out,
+                                                 D0_out, D1_out);
+
+    benchmark::DoNotOptimize(q_out);
+    benchmark::DoNotOptimize(D0_out);
+    benchmark::DoNotOptimize(D1_out);
+
+    index++;
+    if (index + 1 >= inputs.size()) {
+      index = 0;
+    }
+  }
+}
+
 #ifdef INCLUDE_HAND_WRITTEN
 BENCHMARK(BM_QuatInterpolationHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 #endif
@@ -269,4 +293,7 @@ BENCHMARK(BM_QuatInterpolationSymforceFirstOrder)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolationWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatInterpolationWrenfoldNoConditional)
+    ->Iterations(1000000)
+    ->Unit(benchmark::kNanosecond);
 BENCHMARK_MAIN();

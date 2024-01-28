@@ -6,7 +6,7 @@
 namespace gen {
 
 template <typename Scalar, typename T0, typename T1, typename T3, typename T4, typename T5>
-void quaternion_interpolation(const T0& q0, const T1& q1, const Scalar alpha, T3&& q_out, T4&& D_q0, T5&& D_q1)
+void quaternion_interpolation_no_conditional(const T0& q0, const T1& q1, const Scalar alpha, T3&& q_out, T4&& D_q0, T5&& D_q1)
 {
   auto _q0 = wf::make_input_span<4, 1>(q0);
   auto _q1 = wf::make_input_span<4, 1>(q1);
