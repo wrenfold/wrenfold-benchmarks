@@ -9,7 +9,6 @@
 
 #include "quat_interpolation/quat_interpolate_chain.h"
 #include "quat_interpolation/quat_interpolate_first_order.h"
-#include "quat_interpolation/quat_interpolate_no_conditional_wf.h"
 #include "quat_interpolation/quat_interpolate_wf.h"
 
 std::vector<Eigen::Vector4d> generate_quaternions(int num_samples) {
