@@ -33,20 +33,30 @@ Eigen::Matrix<double, 4, 3> retract_derivative(const Eigen::Quaterniond& q) {
   const double qy = q.y();
   const double qz = q.z();
   const double qw = q.w();
-  return (Eigen::Matrix<double, 4, 3>() << -qx / 2, -qy / 2, -qz / 2, qw / 2, -qz / 2, qy / 2,
-          qz / 2, qw / 2, -qx / 2, -qy / 2, qx / 2, qw / 2)
+  // clang-format off
+  return (Eigen::Matrix<double, 4, 3>() << 
+   qw / 2, -qz / 2, qy / 2,
+   qz / 2, qw / 2, -qx / 2, 
+  -qy / 2, qx / 2, qw / 2,
+  -qx / 2, -qy / 2, -qz / 2)
       .finished();
+  // clang-format on
 }
 
-// Right-side local coordinates derivative of q: d[log(q^-1 * (q + dq))] / dq evaluated at dq = 0
+// Right-side local coordinates derivative of q: d[log(q-1 * (q + dq))] / dq
+// evaluated at dq = 0
 Eigen::Matrix<double, 3, 4> local_coordinates_derivative(const Eigen::Quaterniond& q) {
   const double qx = q.x();
   const double qy = q.y();
   const double qz = q.z();
   const double qw = q.w();
-  return (Eigen::Matrix<double, 3, 4>() << -2 * qx, 2 * qw, 2 * qz, -2 * qy, -2 * qy, -2 * qz,
-          2 * qw, 2 * qx, -2 * qz, 2 * qy, -2 * qx, 2 * qw)
+  // clang-format off
+  return (Eigen::Matrix<double, 3, 4>() << 
+    2 * qw, 2 * qz, -2 * qy, -2 * qx,
+    -2 * qz, 2 * qw, 2 * qx, -2 * qy, 
+    2 * qy, -2 * qx, 2 * qw, -2 * qz)
       .finished();
+  // clang-format on
 }
 
 // Normalize a vector, and produce derivatives of the norm and the normalized vector.
@@ -163,8 +173,8 @@ void quaternion_interpolate_manual(const Eigen::Matrix<double, 4, 1>& q0_xyzw,
          q_delta.w(), q_delta.z(), -q_delta.x(), -q_delta.y(), -q_delta.z(), q_delta.w())
             .finished();
 
-    D0->noalias() = local_coordinates_derivative(q_out) *
-                    (q_out_D_q0 * retract_derivative(q0) + q_out_D_w01 * w01_D_q0);
+    D0->noalias() = local_coordinates_derivative(q_out) * (q_out_D_q0 * retract_derivative(q0)) +
+                    local_coordinates_derivative(q_out) * (q_out_D_w01 * w01_D_q0);
   }
   if (D1) {
     D1->noalias() = local_coordinates_derivative(q_out) * q_out_D_w01 * w01_D_q1;
@@ -186,6 +196,29 @@ static void BM_QuatInterpolationHandwritten(benchmark::State& state) {
     benchmark::DoNotOptimize(q_out);
     benchmark::DoNotOptimize(D0_out);
     benchmark::DoNotOptimize(D1_out);
+    index++;
+    if (index + 1 >= inputs.size()) {
+      index = 0;
+    }
+  }
+}
+
+static void BM_QuatLocalCoordsHandwritten(benchmark::State& state) {
+  constexpr std::size_t num_samples = 1000;
+  const auto inputs = generate_quaternions(num_samples);
+
+  std::size_t index = 0;
+  for (auto _ : state) {
+    Eigen::Vector3d v_out;
+    Eigen::Matrix3d D0_out;
+    Eigen::Matrix3d D1_out;
+    v_out = quaternion_local_coords(Eigen::Quaterniond(inputs[index]),
+                                    Eigen::Quaterniond(inputs[index + 1]), &D0_out, &D1_out);
+
+    benchmark::DoNotOptimize(v_out);
+    benchmark::DoNotOptimize(D0_out);
+    benchmark::DoNotOptimize(D1_out);
+
     index++;
     if (index + 1 >= inputs.size()) {
       index = 0;
@@ -261,6 +294,7 @@ static void BM_QuatInterpolationWrenfold(benchmark::State& state) {
   }
 }
 
+#if 0
 static void BM_QuatInterpolationWrenfoldNoConditional(benchmark::State& state) {
   constexpr std::size_t num_samples = 1000;
   const auto inputs = generate_quaternions(num_samples);
@@ -283,16 +317,42 @@ static void BM_QuatInterpolationWrenfoldNoConditional(benchmark::State& state) {
     }
   }
 }
+#endif
+
+static void BM_QuatLocalCoordsWrenfold(benchmark::State& state) {
+  constexpr std::size_t num_samples = 1000;
+  const auto inputs = generate_quaternions(num_samples);
+
+  std::size_t index = 0;
+  for (auto _ : state) {
+    Eigen::Vector3d v_out;
+    Eigen::Matrix3d D0_out;
+    Eigen::Matrix3d D1_out;
+    gen::quaternion_local_coordinates<double>(inputs[index], inputs[index + 1], v_out, D0_out,
+                                              D1_out);
+    benchmark::DoNotOptimize(v_out);
+    benchmark::DoNotOptimize(D0_out);
+    benchmark::DoNotOptimize(D1_out);
+
+    index++;
+    if (index + 1 >= inputs.size()) {
+      index = 0;
+    }
+  }
+}
 
 #ifdef INCLUDE_HAND_WRITTEN
 BENCHMARK(BM_QuatInterpolationHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatLocalCoordsHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 #endif
 BENCHMARK(BM_QuatInterpolationSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolationSymforceFirstOrder)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolationWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatInterpolationWrenfoldNoConditional)
-    ->Iterations(1000000)
-    ->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatLocalCoordsWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+
+// BENCHMARK(BM_QuatInterpolationWrenfoldNoConditional)
+//     ->Iterations(1000000)
+//     ->Unit(benchmark::kNanosecond);
 BENCHMARK_MAIN();

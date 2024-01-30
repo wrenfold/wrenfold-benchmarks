@@ -11,3 +11,4 @@ include(functions.cmake)
 
 add_benchmark(quat_interpolation.cc)
 add_benchmark(imu_integration.cc)
+add_benchmark(matrix_mul.cc)
