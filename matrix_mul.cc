@@ -165,7 +165,7 @@ static void BM_TriMulEigen(benchmark::State& state) {
   }
 }
 
-static void BM_TriMulWrenfold(benchmark::State& state) {
+static void BM_TriMulWrenfold1(benchmark::State& state) {
   constexpr std::size_t num_samples = 1000;
 
   const auto A = generate_matrices<2, 4>(num_samples);
@@ -175,7 +175,39 @@ static void BM_TriMulWrenfold(benchmark::State& state) {
   std::size_t index = 0;
   for (auto _ : state) {
     Eigen::Matrix2d out{};
-    gen::tri_matrix_mul<double>(A[index], B[index], C[index], out);
+    gen::tri_matrix_mul_1<double>(A[index], B[index], C[index], out);
+    benchmark::DoNotOptimize(out);
+    index = (index + 1) % num_samples;
+  }
+}
+
+static void BM_TriMulWrenfold2(benchmark::State& state) {
+  constexpr std::size_t num_samples = 1000;
+
+  const auto A = generate_matrices<2, 4>(num_samples);
+  const auto B = generate_matrices<4, 3>(num_samples);
+  const auto C = generate_matrices<3, 2>(num_samples);
+
+  std::size_t index = 0;
+  for (auto _ : state) {
+    Eigen::Matrix2d out{};
+    gen::tri_matrix_mul_2<double>(A[index], B[index], C[index], out);
+    benchmark::DoNotOptimize(out);
+    index = (index + 1) % num_samples;
+  }
+}
+
+static void BM_TriMulHandwritten(benchmark::State& state) {
+  constexpr std::size_t num_samples = 1000;
+
+  const auto A = generate_matrices<2, 4>(num_samples);
+  const auto B = generate_matrices<4, 3>(num_samples);
+  const auto C = generate_matrices<3, 2>(num_samples);
+
+  std::size_t index = 0;
+  for (auto _ : state) {
+    Eigen::Matrix2d out{};
+    gen::tri_matrix_mul_handwritten(A[index], B[index], C[index], out);
     benchmark::DoNotOptimize(out);
     index = (index + 1) % num_samples;
   }
@@ -188,6 +220,8 @@ BENCHMARK(BM_Wrenfold8)->Iterations(5000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_Simple4)->Iterations(5000000)->Unit(benchmark::kNanosecond);
 
 BENCHMARK(BM_TriMulEigen)->Iterations(5000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_TriMulWrenfold)->Iterations(5000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_TriMulWrenfold1)->Iterations(5000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_TriMulWrenfold2)->Iterations(5000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_TriMulHandwritten)->Iterations(5000000)->Unit(benchmark::kNanosecond);
 
 BENCHMARK_MAIN();

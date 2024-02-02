@@ -8,8 +8,7 @@
 namespace gen {
 
 template <typename Scalar, typename T0, typename T1, typename T2>
-void matrix_mul4(const T0& a, const T1& b, T2&& result)
-{
+void matrix_mul4(const T0& a, const T1& b, T2&& result) {
   auto _a = wf::make_input_span<4, 4>(a);
   auto _b = wf::make_input_span<4, 4>(b);
   auto _result = wf::make_output_span<4, 4>(result);
@@ -18,7 +17,7 @@ void matrix_mul4(const T0& a, const T1& b, T2&& result)
   // add: 48
   // multiply: 64
   // total: 112
-  
+
   const Scalar v0114 = _a(3, 1);
   const Scalar v0039 = _b(1, 3);
   const Scalar v0112 = _a(3, 0);
@@ -182,8 +181,7 @@ void matrix_mul4(const T0& a, const T1& b, T2&& result)
 }
 
 template <typename Scalar, typename T0, typename T1, typename T2>
-void matrix_mul8(const T0& a, const T1& b, T2&& result)
-{
+void matrix_mul8(const T0& a, const T1& b, T2&& result) {
   auto _a = wf::make_input_span<8, 8>(a);
   auto _b = wf::make_input_span<8, 8>(b);
   auto _result = wf::make_output_span<8, 8>(result);
@@ -192,7 +190,7 @@ void matrix_mul8(const T0& a, const T1& b, T2&& result)
   // add: 448
   // multiply: 512
   // total: 960
-  
+
   const Scalar v00962 = _a(7, 1);
   const Scalar v00171 = _b(1, 7);
   const Scalar v00960 = _a(7, 0);
@@ -1348,8 +1346,7 @@ void matrix_mul8(const T0& a, const T1& b, T2&& result)
 }
 
 template <typename Scalar, typename T0, typename T1, typename T2, typename T3>
-void tri_matrix_mul(const T0& A, const T1& B, const T2& C, T3&& out)
-{
+void tri_matrix_mul_1(const T0& A, const T1& B, const T2& C, T3&& out) {
   auto _A = wf::make_input_span<2, 4>(A);
   auto _B = wf::make_input_span<4, 3>(B);
   auto _C = wf::make_input_span<3, 2>(C);
@@ -1359,99 +1356,237 @@ void tri_matrix_mul(const T0& A, const T1& B, const T2& C, T3&& out)
   // add: 26
   // multiply: 36
   // total: 62
-  
-  const Scalar v059 = _A(1, 3);
-  const Scalar v024 = _B(3, 1);
-  const Scalar v057 = _A(1, 2);
-  const Scalar v022 = _B(2, 1);
-  const Scalar v055 = _A(1, 1);
-  const Scalar v020 = _B(1, 1);
-  const Scalar v053 = _A(1, 0);
-  const Scalar v018 = _B(0, 1);
-  const Scalar v011 = _B(3, 0);
-  const Scalar v008 = _B(2, 0);
-  const Scalar v005 = _B(1, 0);
-  const Scalar v002 = _B(0, 0);
-  const Scalar v010 = _A(0, 3);
-  const Scalar v007 = _A(0, 2);
-  const Scalar v004 = _A(0, 1);
-  const Scalar v001 = _A(0, 0);
-  const Scalar v068 = v024 * v059;
-  const Scalar v067 = v022 * v057;
-  const Scalar v066 = v020 * v055;
-  const Scalar v065 = v018 * v053;
-  const Scalar v060 = v011 * v059;
-  const Scalar v058 = v008 * v057;
-  const Scalar v056 = v005 * v055;
-  const Scalar v054 = v002 * v053;
-  const Scalar v037 = _B(3, 2);
-  const Scalar v035 = _B(2, 2);
-  const Scalar v033 = _B(1, 2);
-  const Scalar v031 = _B(0, 2);
-  const Scalar v025 = v010 * v024;
-  const Scalar v023 = v007 * v022;
-  const Scalar v021 = v004 * v020;
-  const Scalar v019 = v001 * v018;
-  const Scalar v012 = v010 * v011;
-  const Scalar v009 = v007 * v008;
-  const Scalar v006 = v004 * v005;
-  const Scalar v003 = v001 * v002;
-  const Scalar v070 = v067 + v068;
-  const Scalar v069 = v065 + v066;
-  const Scalar v062 = v058 + v060;
-  const Scalar v061 = v054 + v056;
-  const Scalar v076 = v037 * v059;
-  const Scalar v075 = v035 * v057;
-  const Scalar v074 = v033 * v055;
-  const Scalar v073 = v031 * v053;
-  const Scalar v027 = v023 + v025;
-  const Scalar v026 = v019 + v021;
-  const Scalar v014 = v009 + v012;
-  const Scalar v013 = v003 + v006;
-  const Scalar v038 = v010 * v037;
-  const Scalar v036 = v007 * v035;
-  const Scalar v034 = v004 * v033;
-  const Scalar v032 = v001 * v031;
-  const Scalar v071 = v069 + v070;
-  const Scalar v047 = _C(1, 1);
-  const Scalar v063 = v061 + v062;
-  const Scalar v045 = _C(0, 1);
-  const Scalar v078 = v075 + v076;
-  const Scalar v077 = v073 + v074;
-  const Scalar v017 = _C(1, 0);
+
   const Scalar v000 = _C(0, 0);
-  const Scalar v028 = v026 + v027;
-  const Scalar v015 = v013 + v014;
-  const Scalar v040 = v036 + v038;
-  const Scalar v039 = v032 + v034;
-  const Scalar v084 = v047 * v071;
-  const Scalar v083 = v045 * v063;
-  const Scalar v079 = v077 + v078;
-  const Scalar v049 = _C(2, 1);
-  const Scalar v072 = v017 * v071;
-  const Scalar v064 = v000 * v063;
-  const Scalar v030 = _C(2, 0);
-  const Scalar v048 = v028 * v047;
-  const Scalar v046 = v015 * v045;
-  const Scalar v041 = v039 + v040;
-  const Scalar v029 = v017 * v028;
+  const Scalar v001 = _A(0, 0);
+  const Scalar v002 = _B(0, 0);
+  const Scalar v003 = v001 * v002;
+  const Scalar v004 = _A(0, 1);
+  const Scalar v005 = _B(1, 0);
+  const Scalar v006 = v004 * v005;
+  const Scalar v007 = _A(0, 2);
+  const Scalar v008 = _B(2, 0);
+  const Scalar v009 = v007 * v008;
+  const Scalar v010 = _A(0, 3);
+  const Scalar v011 = _B(3, 0);
+  const Scalar v012 = v010 * v011;
+  const Scalar v013 = v003 + v006;
+  const Scalar v014 = v009 + v013;
+  const Scalar v015 = v012 + v014;
   const Scalar v016 = v000 * v015;
-  const Scalar v086 = v083 + v084;
-  const Scalar v085 = v049 * v079;
-  const Scalar v081 = v064 + v072;
-  const Scalar v080 = v030 * v079;
-  const Scalar v051 = v046 + v048;
-  const Scalar v050 = v041 * v049;
-  const Scalar v043 = v016 + v029;
+  const Scalar v017 = _C(1, 0);
+  const Scalar v018 = _B(0, 1);
+  const Scalar v019 = v001 * v018;
+  const Scalar v020 = _B(1, 1);
+  const Scalar v021 = v004 * v020;
+  const Scalar v022 = _B(2, 1);
+  const Scalar v023 = v007 * v022;
+  const Scalar v024 = _B(3, 1);
+  const Scalar v025 = v010 * v024;
+  const Scalar v026 = v019 + v021;
+  const Scalar v027 = v023 + v026;
+  const Scalar v028 = v025 + v027;
+  const Scalar v029 = v017 * v028;
+  const Scalar v030 = _C(2, 0);
+  const Scalar v031 = _B(0, 2);
+  const Scalar v032 = v001 * v031;
+  const Scalar v033 = _B(1, 2);
+  const Scalar v034 = v004 * v033;
+  const Scalar v035 = _B(2, 2);
+  const Scalar v036 = v007 * v035;
+  const Scalar v037 = _B(3, 2);
+  const Scalar v038 = v010 * v037;
+  const Scalar v039 = v032 + v034;
+  const Scalar v040 = v036 + v039;
+  const Scalar v041 = v038 + v040;
   const Scalar v042 = v030 * v041;
-  const Scalar v087 = v085 + v086;
-  const Scalar v082 = v080 + v081;
-  const Scalar v052 = v050 + v051;
+  const Scalar v043 = v016 + v029;
   const Scalar v044 = v042 + v043;
+  const Scalar v045 = _C(0, 1);
+  const Scalar v046 = v015 * v045;
+  const Scalar v047 = _C(1, 1);
+  const Scalar v048 = v028 * v047;
+  const Scalar v049 = _C(2, 1);
+  const Scalar v050 = v041 * v049;
+  const Scalar v051 = v046 + v048;
+  const Scalar v052 = v050 + v051;
+  const Scalar v053 = _A(1, 0);
+  const Scalar v054 = v002 * v053;
+  const Scalar v055 = _A(1, 1);
+  const Scalar v056 = v005 * v055;
+  const Scalar v057 = _A(1, 2);
+  const Scalar v058 = v008 * v057;
+  const Scalar v059 = _A(1, 3);
+  const Scalar v060 = v011 * v059;
+  const Scalar v061 = v054 + v056;
+  const Scalar v062 = v058 + v061;
+  const Scalar v063 = v060 + v062;
+  const Scalar v064 = v000 * v063;
+  const Scalar v065 = v018 * v053;
+  const Scalar v066 = v020 * v055;
+  const Scalar v067 = v022 * v057;
+  const Scalar v068 = v024 * v059;
+  const Scalar v069 = v065 + v066;
+  const Scalar v070 = v067 + v069;
+  const Scalar v071 = v068 + v070;
+  const Scalar v072 = v017 * v071;
+  const Scalar v073 = v031 * v053;
+  const Scalar v074 = v033 * v055;
+  const Scalar v075 = v035 * v057;
+  const Scalar v076 = v037 * v059;
+  const Scalar v077 = v073 + v074;
+  const Scalar v078 = v075 + v077;
+  const Scalar v079 = v076 + v078;
+  const Scalar v080 = v030 * v079;
+  const Scalar v081 = v064 + v072;
+  const Scalar v082 = v080 + v081;
+  const Scalar v083 = v045 * v063;
+  const Scalar v084 = v047 * v071;
+  const Scalar v085 = v049 * v079;
+  const Scalar v086 = v083 + v084;
+  const Scalar v087 = v085 + v086;
   _out(0, 0) = v044;
   _out(0, 1) = v052;
   _out(1, 0) = v082;
   _out(1, 1) = v087;
 }
 
-} // namespace gen
+template <typename Scalar, typename T0, typename T1, typename T2, typename T3>
+void tri_matrix_mul_2(const T0& A, const T1& B, const T2& C, T3&& out) {
+  auto _A = wf::make_input_span<2, 4>(A);
+  auto _B = wf::make_input_span<4, 3>(B);
+  auto _C = wf::make_input_span<3, 2>(C);
+  auto _out = wf::make_output_span<2, 2>(out);
+
+  // Operation counts:
+  // add: 28
+  // multiply: 40
+  // total: 68
+
+  const Scalar v000 = _A(0, 0);
+  const Scalar v001 = _C(0, 0);
+  const Scalar v002 = _B(0, 0);
+  const Scalar v003 = v001 * v002;
+  const Scalar v004 = _C(1, 0);
+  const Scalar v005 = _B(0, 1);
+  const Scalar v006 = v004 * v005;
+  const Scalar v007 = _C(2, 0);
+  const Scalar v008 = _B(0, 2);
+  const Scalar v009 = v007 * v008;
+  const Scalar v010 = v003 + v006;
+  const Scalar v011 = v009 + v010;
+  const Scalar v012 = v000 * v011;
+  const Scalar v013 = _A(0, 1);
+  const Scalar v014 = _B(1, 0);
+  const Scalar v015 = v001 * v014;
+  const Scalar v016 = _B(1, 1);
+  const Scalar v017 = v004 * v016;
+  const Scalar v018 = _B(1, 2);
+  const Scalar v019 = v007 * v018;
+  const Scalar v020 = v015 + v017;
+  const Scalar v021 = v019 + v020;
+  const Scalar v022 = v013 * v021;
+  const Scalar v023 = _A(0, 2);
+  const Scalar v024 = _B(2, 0);
+  const Scalar v025 = v001 * v024;
+  const Scalar v026 = _B(2, 1);
+  const Scalar v027 = v004 * v026;
+  const Scalar v028 = _B(2, 2);
+  const Scalar v029 = v007 * v028;
+  const Scalar v030 = v025 + v027;
+  const Scalar v031 = v029 + v030;
+  const Scalar v032 = v023 * v031;
+  const Scalar v033 = _A(0, 3);
+  const Scalar v034 = _B(3, 0);
+  const Scalar v035 = v001 * v034;
+  const Scalar v036 = _B(3, 1);
+  const Scalar v037 = v004 * v036;
+  const Scalar v038 = _B(3, 2);
+  const Scalar v039 = v007 * v038;
+  const Scalar v040 = v035 + v037;
+  const Scalar v041 = v039 + v040;
+  const Scalar v042 = v033 * v041;
+  const Scalar v043 = v012 + v022;
+  const Scalar v044 = v032 + v043;
+  const Scalar v045 = v042 + v044;
+  const Scalar v046 = _C(0, 1);
+  const Scalar v047 = v002 * v046;
+  const Scalar v048 = _C(1, 1);
+  const Scalar v049 = v005 * v048;
+  const Scalar v050 = _C(2, 1);
+  const Scalar v051 = v008 * v050;
+  const Scalar v052 = v047 + v049;
+  const Scalar v053 = v051 + v052;
+  const Scalar v054 = v000 * v053;
+  const Scalar v055 = v014 * v046;
+  const Scalar v056 = v016 * v048;
+  const Scalar v057 = v018 * v050;
+  const Scalar v058 = v055 + v056;
+  const Scalar v059 = v057 + v058;
+  const Scalar v060 = v013 * v059;
+  const Scalar v061 = v024 * v046;
+  const Scalar v062 = v026 * v048;
+  const Scalar v063 = v028 * v050;
+  const Scalar v064 = v061 + v062;
+  const Scalar v065 = v063 + v064;
+  const Scalar v066 = v023 * v065;
+  const Scalar v067 = v034 * v046;
+  const Scalar v068 = v036 * v048;
+  const Scalar v069 = v038 * v050;
+  const Scalar v070 = v067 + v068;
+  const Scalar v071 = v069 + v070;
+  const Scalar v072 = v033 * v071;
+  const Scalar v073 = v054 + v060;
+  const Scalar v074 = v066 + v073;
+  const Scalar v075 = v072 + v074;
+  const Scalar v076 = _A(1, 0);
+  const Scalar v077 = v011 * v076;
+  const Scalar v078 = _A(1, 1);
+  const Scalar v079 = v021 * v078;
+  const Scalar v080 = _A(1, 2);
+  const Scalar v081 = v031 * v080;
+  const Scalar v082 = _A(1, 3);
+  const Scalar v083 = v041 * v082;
+  const Scalar v084 = v077 + v079;
+  const Scalar v085 = v081 + v084;
+  const Scalar v086 = v083 + v085;
+  const Scalar v087 = v053 * v076;
+  const Scalar v088 = v059 * v078;
+  const Scalar v089 = v065 * v080;
+  const Scalar v090 = v071 * v082;
+  const Scalar v091 = v087 + v088;
+  const Scalar v092 = v089 + v091;
+  const Scalar v093 = v090 + v092;
+  _out(0, 0) = v045;
+  _out(0, 1) = v075;
+  _out(1, 0) = v086;
+  _out(1, 1) = v093;
+}
+
+void tri_matrix_mul_handwritten(const Eigen::Matrix<double, 2, 4>& _A,
+                                const Eigen::Matrix<double, 4, 3>& _B,
+                                const Eigen::Matrix<double, 3, 2>& _C, Eigen::Matrix2d& _out) {
+  using Scalar = double;
+
+  // 2x3 matrix
+  std::array<Scalar, 12> A_times_B;
+
+  for (int i = 0; i < 2; ++i) {
+    std::array<double, 4> row = {_A(i, 0), _A(i, 1), _A(i, 2), _A(i, 3)};
+    for (int j = 0; j < 3; ++j) {
+      std::array<double, 4> col = {_B(0, j), _B(1, j), _B(2, j), _B(3, j)};
+      A_times_B[i * 3 + j] = row[0] * col[0] + row[1] * col[1] + row[2] * col[2];
+    }
+  }
+
+  // do (A*B) * C
+  for (int i = 0; i < 2; ++i) {
+    std::array<double, 3> row = {A_times_B[i * 3 + 0], A_times_B[i * 3 + 1], A_times_B[i * 3 + 2]};
+    for (int j = 0; j < 2; ++j) {
+      std::array<double, 4> col = {_C(0, j), _C(0, j), _C(0, j)};
+      _out(i, j) = row[0] * col[0] + row[1] * col[1] + row[2] * col[2];
+    }
+  }
+}
+
+}  // namespace gen

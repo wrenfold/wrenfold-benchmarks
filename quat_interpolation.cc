@@ -343,13 +343,16 @@ static void BM_QuatLocalCoordsWrenfold(benchmark::State& state) {
 
 #ifdef INCLUDE_HAND_WRITTEN
 BENCHMARK(BM_QuatInterpolationHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatLocalCoordsHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 #endif
 BENCHMARK(BM_QuatInterpolationSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolationSymforceFirstOrder)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolationWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+
+#ifdef INCLUDE_HAND_WRITTEN
+BENCHMARK(BM_QuatLocalCoordsHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+#endif
 BENCHMARK(BM_QuatLocalCoordsWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 
 // BENCHMARK(BM_QuatInterpolationWrenfoldNoConditional)
