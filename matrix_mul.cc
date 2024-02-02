@@ -48,16 +48,16 @@ simple_matrix<N, M> operator*(const simple_matrix<N, K>& a, const simple_matrix<
   return result;
 }
 
-template <std::size_t Dim>
-std::vector<Eigen::Matrix<double, Dim, Dim>> generate_matrices(int num_samples) {
+template <std::size_t Row, std::size_t Col = Row>
+std::vector<Eigen::Matrix<double, Row, Col>> generate_matrices(int num_samples) {
   std::default_random_engine engine{0};
   std::uniform_real_distribution<double> dist{-1.0, 1.0};
 
-  std::vector<Eigen::Matrix<double, Dim, Dim>> inputs{};
+  std::vector<Eigen::Matrix<double, Row, Col>> inputs{};
   for (std::size_t i = 0; i < num_samples; ++i) {
-    Eigen::Matrix<double, Dim, Dim> mat{};
-    for (int i = 0; i < Dim; ++i) {
-      for (int j = 0; j < Dim; ++j) {
+    Eigen::Matrix<double, Row, Col> mat{};
+    for (int i = 0; i < Row; ++i) {
+      for (int j = 0; j < Col; ++j) {
         mat(i, j) = dist(engine);
       }
     }
@@ -149,10 +149,45 @@ static void BM_Simple4(benchmark::State& state) {
   }
 }
 
+static void BM_TriMulEigen(benchmark::State& state) {
+  constexpr std::size_t num_samples = 1000;
+
+  const auto A = generate_matrices<2, 4>(num_samples);
+  const auto B = generate_matrices<4, 3>(num_samples);
+  const auto C = generate_matrices<3, 2>(num_samples);
+
+  std::size_t index = 0;
+  for (auto _ : state) {
+    Eigen::Matrix2d out{};
+    out.noalias() = A[index] * B[index] * C[index];
+    benchmark::DoNotOptimize(out);
+    index = (index + 1) % num_samples;
+  }
+}
+
+static void BM_TriMulWrenfold(benchmark::State& state) {
+  constexpr std::size_t num_samples = 1000;
+
+  const auto A = generate_matrices<2, 4>(num_samples);
+  const auto B = generate_matrices<4, 3>(num_samples);
+  const auto C = generate_matrices<3, 2>(num_samples);
+
+  std::size_t index = 0;
+  for (auto _ : state) {
+    Eigen::Matrix2d out{};
+    gen::tri_matrix_mul<double>(A[index], B[index], C[index], out);
+    benchmark::DoNotOptimize(out);
+    index = (index + 1) % num_samples;
+  }
+}
+
 BENCHMARK(BM_Eigen4)->Iterations(5000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_Eigen8)->Iterations(5000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_Wrenfold4)->Iterations(5000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_Wrenfold8)->Iterations(5000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_Simple4)->Iterations(5000000)->Unit(benchmark::kNanosecond);
-// BENCHMARK(BM_Wrenfold8)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+
+BENCHMARK(BM_TriMulEigen)->Iterations(5000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_TriMulWrenfold)->Iterations(5000000)->Unit(benchmark::kNanosecond);
+
 BENCHMARK_MAIN();
