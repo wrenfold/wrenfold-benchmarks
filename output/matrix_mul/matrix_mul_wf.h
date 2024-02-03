@@ -5,6 +5,8 @@
 
 #include <wf_runtime/span.h>
 
+#include <immintrin.h>
+
 namespace gen {
 
 template <typename Scalar, typename T0, typename T1, typename T2>
@@ -1563,30 +1565,100 @@ void tri_matrix_mul_2(const T0& A, const T1& B, const T2& C, T3&& out) {
   _out(1, 1) = v093;
 }
 
+template <std::size_t Rows, std::size_t Cols>
+struct mat_storage {
+ public:
+  constexpr double& operator()(int i, int j) noexcept {
+    return data_[static_cast<std::size_t>(j) * Rows + static_cast<std::size_t>(i)];
+  }
+
+ private:
+  std::array<double, Rows * Cols> data_;
+};
+
 void tri_matrix_mul_handwritten(const Eigen::Matrix<double, 2, 4>& _A,
                                 const Eigen::Matrix<double, 4, 3>& _B,
                                 const Eigen::Matrix<double, 3, 2>& _C, Eigen::Matrix2d& _out) {
-  using Scalar = double;
-
   // 2x3 matrix
-  std::array<Scalar, 12> A_times_B;
+  mat_storage<2, 3> A_times_B;
 
-  for (int i = 0; i < 2; ++i) {
-    std::array<double, 4> row = {_A(i, 0), _A(i, 1), _A(i, 2), _A(i, 3)};
-    for (int j = 0; j < 3; ++j) {
-      std::array<double, 4> col = {_B(0, j), _B(1, j), _B(2, j), _B(3, j)};
-      A_times_B[i * 3 + j] = row[0] * col[0] + row[1] * col[1] + row[2] * col[2];
+  // iterate over columns of B in outer loop
+  for (int j = 0; j < 3; ++j) {
+    // iterate over rows of A in inner loop
+    for (int i = 0; i < 2; ++i) {
+      A_times_B(i, j) =
+          _A(i, 0) * _B(0, j) + _A(i, 1) * _B(1, j) + _A(i, 2) * _B(2, j) + _A(i, 3) * _B(3, j);
     }
   }
 
-  // do (A*B) * C
-  for (int i = 0; i < 2; ++i) {
-    std::array<double, 3> row = {A_times_B[i * 3 + 0], A_times_B[i * 3 + 1], A_times_B[i * 3 + 2]};
-    for (int j = 0; j < 2; ++j) {
-      std::array<double, 4> col = {_C(0, j), _C(0, j), _C(0, j)};
-      _out(i, j) = row[0] * col[0] + row[1] * col[1] + row[2] * col[2];
+  // now multiply (A*B) * C
+  // iterate over columns of C in outer loop
+  for (int j = 0; j < 2; ++j) {
+    // rows of (A*B)
+    for (int i = 0; i < 2; ++i) {
+      _out(i, j) =
+          A_times_B(i, 0) * _C(0, j) + A_times_B(i, 1) * _C(1, j) + A_times_B(i, 2) * _C(2, j);
     }
   }
 }
+
+#ifndef NO_FMA
+void tri_matrix_mul_handwritten_2(const Eigen::Matrix<double, 2, 4>& _A,
+                                  const Eigen::Matrix<double, 4, 3>& _B,
+                                  const Eigen::Matrix<double, 3, 2>& _C, Eigen::Matrix2d& _out) {
+  // 2x3 matrix
+  mat_storage<2, 3> A_times_B;
+
+  // iterate over columns of B in outer loop
+  for (int j = 0; j < 3; ++j) {
+    // rows of A in inner loop
+    __m128 total = _mm_set1_pd(0.0);
+    for (int i = 0; i < 4; ++i) {
+      __m128 a_col = _mm_set_pd(_A(1, i), _A(0, i));
+      // __m128 prod = _mm_mul_pd(a_col, _mm_set1_pd(_B(i, j)));
+      // total = _mm_add_pd(total, prod);
+      total = _mm_fmadd_pd(a_col, _mm_set1_pd(_B(i, j)), total);
+    }
+
+    _mm_storeu_pd(&A_times_B(0, j), total);
+
+    // A_times_B(0, j) = _A(0, 0) * _B(0, j);
+    // A_times_B(1, j) = _A(1, 0) * _B(0, j);
+
+    // A_times_B(0, j) += _A(0, 1) * _B(1, j);
+    // A_times_B(1, j) += _A(1, 1) * _B(1, j);
+
+    // A_times_B(0, j) += _A(0, 2) * _B(2, j);
+    // A_times_B(1, j) += _A(1, 2) * _B(2, j);
+
+    // A_times_B(0, j) += _A(0, 3) * _B(3, j);
+    // A_times_B(1, j) += _A(1, 3) * _B(3, j);
+  }
+
+  // iterate over columns of C:
+  for (int j = 0; j < 2; ++j) {
+    __m128 total = _mm_set1_pd(0.0);
+
+    // rows of A*B
+    for (int i = 0; i < 3; ++i) {
+      __m128 a_times_b_col = _mm_set_pd(A_times_B(1, i), A_times_B(0, i));
+      total = _mm_fmadd_pd(a_times_b_col, _mm_set1_pd(_C(i, j)), total);
+    }
+
+    _mm_storeu_pd(&_out(0, j), total);
+  }
+
+  // // now multiply (A*B) * C
+  // // iterate over columns of C in outer loop
+  // for (int j = 0; j < 2; ++j) {
+  //     // rows of (A*B)
+  //     for (int i = 0; i < 2; ++i) {
+  //         _out(i, j) = A_times_B(i, 0) * _C(0, j) +
+  //                      A_times_B(i, 1) * _C(1, j) +
+  //                      A_times_B(i, 2) * _C(2, j);
+  //     }
+  // }
+}
+#endif
 
 }  // namespace gen
