@@ -9,21 +9,33 @@ symforce.set_symbolic_api("symengine")
 from symforce import geo
 from symforce import symbolic as sm
 from symforce import typing as T
-from symforce.codegen import Codegen, CodegenConfig, CppConfig
+from symforce.codegen import Codegen, CppConfig
 from symforce.values import Values
-from symforce.jacobian_helpers import tangent_jacobians_chain_rule
+from symforce.jacobian_helpers import (
+    tangent_jacobians_chain_rule,
+    tangent_jacobians_first_order,
+)
+from symforce.type_helpers import symbolic_inputs
 
 
 THIS_DIR = Path(__file__).parent.absolute()
 
 
-def blockwise_jacobians(output_states, input_states) -> geo.Matrix:
+def blockwise_jacobians(
+    output_states, input_states, jacobian_method: str
+) -> geo.Matrix:
     jacobians_stacked = None
     for out_state in output_states:
         jacobian_row = None
         for in_state in input_states:
-            out_D_in, = tangent_jacobians_chain_rule(expr=out_state,
-                                                     args=[in_state])
+            if jacobian_method == "chain":
+                (out_D_in,) = tangent_jacobians_chain_rule(
+                    expr=out_state, args=[in_state]
+                )
+            elif jacobian_method == "first_order":
+                (out_D_in,) = tangent_jacobians_first_order(
+                    expr=out_state, args=[in_state]
+                )
             if jacobian_row is None:
                 jacobian_row = out_D_in
             else:
@@ -38,7 +50,7 @@ def blockwise_jacobians(output_states, input_states) -> geo.Matrix:
 
 
 def integrate_imu(
-    i_R_j: geo.Rot3,
+    i_R_j_xyzw: geo.V4,
     i_p_j: geo.V3,
     i_v_j: geo.V3,
     gyro_bias: geo.V3,
@@ -46,8 +58,10 @@ def integrate_imu(
     angular_velocity: geo.V3,
     linear_acceleration: geo.V3,
     dt: T.Scalar,
+    jacobian_method: str,
 ) -> Values:
-    
+    i_R_j = geo.Rot3.from_storage(i_R_j_xyzw.to_storage())
+
     # Subtract biases from the input measurements:
     angular_velocity_unbiased = angular_velocity - gyro_bias
     linear_acceleration_unbiased = linear_acceleration - accelerometer_bias
@@ -68,15 +82,21 @@ def integrate_imu(
 
     # Determine jacobians:
     k_D_j = blockwise_jacobians(
-        output_states=(i_R_k, i_p_k, i_v_k), input_states=(i_R_j, i_p_j, i_v_j))
+        output_states=(i_R_k, i_p_k, i_v_k),
+        input_states=(i_R_j, i_p_j, i_v_j),
+        jacobian_method=jacobian_method,
+    )
 
     k_D_measurements = blockwise_jacobians(
-        output_states=(i_R_k, i_p_k, i_v_k), input_states=(angular_velocity, linear_acceleration))
+        output_states=(i_R_k, i_p_k, i_v_k),
+        input_states=(angular_velocity, linear_acceleration),
+        jacobian_method=jacobian_method,
+    )
 
     k_D_bias = -k_D_measurements
 
     return Values(
-        i_R_k=i_R_k,
+        i_R_k=geo.V4.from_storage(i_R_k.to_storage()),
         i_p_k=i_p_k,
         i_v_k=i_v_k,
         k_D_j=k_D_j,
@@ -85,15 +105,85 @@ def integrate_imu(
     )
 
 
+def integrate_imu_chain(
+    i_R_j_xyzw: geo.V4,
+    i_p_j: geo.V3,
+    i_v_j: geo.V3,
+    gyro_bias: geo.V3,
+    accelerometer_bias: geo.V3,
+    angular_velocity: geo.V3,
+    linear_acceleration: geo.V3,
+    dt: T.Scalar,
+) -> Values:
+    return integrate_imu(
+        i_R_j_xyzw,
+        i_p_j,
+        i_v_j,
+        gyro_bias,
+        accelerometer_bias,
+        angular_velocity,
+        linear_acceleration,
+        dt,
+        "chain",
+    )
+
+
+def integrate_imu_first_order(
+    i_R_j_xyzw: geo.V4,
+    i_p_j: geo.V3,
+    i_v_j: geo.V3,
+    gyro_bias: geo.V3,
+    accelerometer_bias: geo.V3,
+    angular_velocity: geo.V3,
+    linear_acceleration: geo.V3,
+    dt: T.Scalar,
+) -> Values:
+    return integrate_imu(
+        i_R_j_xyzw,
+        i_p_j,
+        i_v_j,
+        gyro_bias,
+        accelerometer_bias,
+        angular_velocity,
+        linear_acceleration,
+        dt,
+        "first_order",
+    )
+
 
 def main():
     config = CppConfig()
     start = time.time()
-    cg = Codegen.function(func=integrate_imu, config=config)
-    cg.generate_function(output_dir=THIS_DIR / "output" / "integrate_imu", skip_directory_nesting=True)
+
+    inputs = symbolic_inputs(integrate_imu_chain)
+    cg = Codegen(
+        inputs,
+        outputs=integrate_imu_chain(**inputs),
+        config=config,
+        name="integrate_imu_chain",
+        return_key=None,
+    )
+
+    cg.generate_function(
+        output_dir=THIS_DIR / "output" / "integrate_imu", skip_directory_nesting=True
+    )
+
+    inputs = symbolic_inputs(integrate_imu_first_order)
+    cg = Codegen(
+        inputs,
+        outputs=integrate_imu_first_order(**inputs),
+        config=config,
+        name="integrate_imu_first_order",
+        return_key=None,
+    )
+
+    cg.generate_function(
+        output_dir=THIS_DIR / "output" / "integrate_imu", skip_directory_nesting=True
+    )
+
     end = time.time()
-    print(f'Elapsed time: {end - start}')
+    print(f"Elapsed time: {end - start}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

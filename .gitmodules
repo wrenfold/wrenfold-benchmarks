@@ -1,0 +1,9 @@
+[submodule "dependencies/benchmark"]
+	path = dependencies/benchmark
+	url = https://github.com/google/benchmark.git
+[submodule "dependencies/eigen"]
+	path = dependencies/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "dependencies/symforce"]
+	path = dependencies/symforce
+	url = https://github.com/symforce-org/symforce.git
