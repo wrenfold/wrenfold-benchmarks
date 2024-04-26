@@ -7,7 +7,7 @@
 
 #include <wrenfold/span_eigen.h>
 
-#include "matrix_mul/matrix_mul_wf.h"
+#include "generated/matrix_mul/matrix_mul_wf.h"
 
 // column-major matrix type
 template <std::size_t Rows, std::size_t Cols>
