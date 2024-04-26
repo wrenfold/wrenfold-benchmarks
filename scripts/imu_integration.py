@@ -1,7 +1,7 @@
 from pathlib import Path
-import time
 
 import symforce
+import timeit
 
 symforce.set_epsilon_to_symbol()
 symforce.set_symbolic_api("symengine")
@@ -17,8 +17,6 @@ from symforce.jacobian_helpers import (
 )
 from symforce.type_helpers import symbolic_inputs
 
-THIS_DIR = Path(__file__).parent.absolute()
-
 
 def blockwise_jacobians(output_states, input_states, jacobian_method: str) -> geo.Matrix:
     jacobians_stacked = None
@@ -29,6 +27,8 @@ def blockwise_jacobians(output_states, input_states, jacobian_method: str) -> ge
                 (out_D_in,) = tangent_jacobians_chain_rule(expr=out_state, args=[in_state])
             elif jacobian_method == "first_order":
                 (out_D_in,) = tangent_jacobians_first_order(expr=out_state, args=[in_state])
+            else:
+                raise NotImplementedError("Unsupported jacobian method")
             if jacobian_row is None:
                 jacobian_row = out_D_in
             else:
@@ -145,8 +145,8 @@ def integrate_imu_first_order(
 
 
 def main():
+    output_dir = Path(__file__).parent.parent.absolute() / "generated" / "integrate_imu"
     config = CppConfig()
-    start = time.time()
 
     inputs = symbolic_inputs(integrate_imu_chain)
     cg = Codegen(
@@ -157,8 +157,7 @@ def main():
         return_key=None,
     )
 
-    cg.generate_function(
-        output_dir=THIS_DIR / "output" / "integrate_imu", skip_directory_nesting=True)
+    cg.generate_function(output_dir=output_dir, skip_directory_nesting=True)
 
     inputs = symbolic_inputs(integrate_imu_first_order)
     cg = Codegen(
@@ -169,11 +168,7 @@ def main():
         return_key=None,
     )
 
-    cg.generate_function(
-        output_dir=THIS_DIR / "output" / "integrate_imu", skip_directory_nesting=True)
-
-    end = time.time()
-    print(f"Elapsed time: {end - start}")
+    cg.generate_function(output_dir=output_dir, skip_directory_nesting=True)
 
 
 if __name__ == "__main__":
