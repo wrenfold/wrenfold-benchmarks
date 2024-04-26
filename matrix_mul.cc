@@ -1,11 +1,11 @@
-// Bencmark matrix mul method.
+// Benchmark matrix mul method.
 #include <iostream>
 #include <random>
 #include <vector>
 
 #include <benchmark/benchmark.h>
 
-#include "wf_runtime/span_eigen.h"
+#include <wrenfold/span_eigen.h>
 
 #include "matrix_mul/matrix_mul_wf.h"
 
@@ -244,5 +244,3 @@ BENCHMARK(BM_TriMulHandwritten)->Iterations(5000000)->Unit(benchmark::kNanosecon
 #ifndef NO_FMA
 BENCHMARK(BM_TriMulHandwritten2)->Iterations(5000000)->Unit(benchmark::kNanosecond);
 #endif
-
-BENCHMARK_MAIN();

@@ -16,13 +16,11 @@ from symforce.jacobian_helpers import (
 from symforce.values import Values
 from symforce.type_helpers import symbolic_inputs
 
-
 THIS_DIR = Path(__file__).parent.absolute()
 
 
-def quat_interpolate(
-    q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar, jacobian_method: str
-) -> Values:
+def quat_interpolate(q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar,
+                     jacobian_method: str) -> Values:
     q0 = geo.Rot3.from_storage(q0_xyzw)
     q1 = geo.Rot3.from_storage(q1_xyzw)
     w01 = geo.V3(q0.local_coordinates(q1, epsilon=1.0e-16))
@@ -35,9 +33,7 @@ def quat_interpolate(
         D1 = tangent_jacobians_first_order(expr=out, args=[q1])[0]
     else:
         raise RuntimeError(f"Invalid arg: {jacobian_method}")
-    result = Values(
-        q_out=geo.V4.from_storage(out.to_storage()), D0=geo.M33(D0), D1=geo.M33(D1)
-    )
+    result = Values(q_out=geo.V4.from_storage(out.to_storage()), D0=geo.M33(D0), D1=geo.M33(D1))
     return result
 
 

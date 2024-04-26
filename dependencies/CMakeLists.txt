@@ -43,11 +43,9 @@ add_symforce_lib()
 
 # Create an interface library for the wrenfold runtime headers
 function(add_wrenfold_headers)
-  add_library(wf_runtime INTERFACE)
+  add_library(wrenfold_runtime INTERFACE)
   target_include_directories(
-    wf_runtime
-    INTERFACE
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/wrenfold>
-      $<INSTALL_INTERFACE:include>)
+    wrenfold_runtime INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/wrenfold>
+                               $<INSTALL_INTERFACE:include>)
 endfunction()
 add_wrenfold_headers()

@@ -17,25 +17,18 @@ from symforce.jacobian_helpers import (
 )
 from symforce.type_helpers import symbolic_inputs
 
-
 THIS_DIR = Path(__file__).parent.absolute()
 
 
-def blockwise_jacobians(
-    output_states, input_states, jacobian_method: str
-) -> geo.Matrix:
+def blockwise_jacobians(output_states, input_states, jacobian_method: str) -> geo.Matrix:
     jacobians_stacked = None
     for out_state in output_states:
         jacobian_row = None
         for in_state in input_states:
             if jacobian_method == "chain":
-                (out_D_in,) = tangent_jacobians_chain_rule(
-                    expr=out_state, args=[in_state]
-                )
+                (out_D_in,) = tangent_jacobians_chain_rule(expr=out_state, args=[in_state])
             elif jacobian_method == "first_order":
-                (out_D_in,) = tangent_jacobians_first_order(
-                    expr=out_state, args=[in_state]
-                )
+                (out_D_in,) = tangent_jacobians_first_order(expr=out_state, args=[in_state])
             if jacobian_row is None:
                 jacobian_row = out_D_in
             else:
@@ -165,8 +158,7 @@ def main():
     )
 
     cg.generate_function(
-        output_dir=THIS_DIR / "output" / "integrate_imu", skip_directory_nesting=True
-    )
+        output_dir=THIS_DIR / "output" / "integrate_imu", skip_directory_nesting=True)
 
     inputs = symbolic_inputs(integrate_imu_first_order)
     cg = Codegen(
@@ -178,8 +170,7 @@ def main():
     )
 
     cg.generate_function(
-        output_dir=THIS_DIR / "output" / "integrate_imu", skip_directory_nesting=True
-    )
+        output_dir=THIS_DIR / "output" / "integrate_imu", skip_directory_nesting=True)
 
     end = time.time()
     print(f"Elapsed time: {end - start}")

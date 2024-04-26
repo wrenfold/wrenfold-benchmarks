@@ -1,13 +1,13 @@
 // Machine generated code.
 #include <cmath>
 
-#include <wf_runtime/span.h>
+#include <wrenfold/span.h>
 
 namespace gen {
 
 template <typename Scalar, typename T0, typename T1, typename T3, typename T4, typename T5>
-void quaternion_interpolation(const T0& q0, const T1& q1, const Scalar alpha, T3&& q_out, T4&& D_q0, T5&& D_q1)
-{
+void quaternion_interpolation(const T0& q0, const T1& q1, const Scalar alpha, T3&& q_out, T4&& D_q0,
+                              T5&& D_q1) {
   auto _q0 = wf::make_input_span<4, 1>(q0);
   auto _q1 = wf::make_input_span<4, 1>(q1);
   auto _q_out = wf::make_output_span<4, 1>(q_out);
@@ -23,7 +23,7 @@ void quaternion_interpolation(const T0& q0, const T1& q1, const Scalar alpha, T3
   // multiply: 784
   // negate: 107
   // total: 1382
-  
+
   const Scalar v00000 = _q0(2, 0);
   const Scalar v00004 = _q0(1, 0);
   const Scalar v00005 = _q1(2, 0);
@@ -1547,8 +1547,8 @@ void quaternion_interpolation(const T0& q0, const T1& q1, const Scalar alpha, T3
 }
 
 template <typename Scalar, typename T0, typename T1, typename T3, typename T4, typename T5>
-void quaternion_interpolation_no_conditional(const T0& q0, const T1& q1, const Scalar alpha, T3&& q_out, T4&& D_q0, T5&& D_q1)
-{
+void quaternion_interpolation_no_conditional(const T0& q0, const T1& q1, const Scalar alpha,
+                                             T3&& q_out, T4&& D_q0, T5&& D_q1) {
   auto _q0 = wf::make_input_span<4, 1>(q0);
   auto _q1 = wf::make_input_span<4, 1>(q1);
   auto _q_out = wf::make_output_span<4, 1>(q_out);
@@ -1563,7 +1563,7 @@ void quaternion_interpolation_no_conditional(const T0& q0, const T1& q1, const S
   // multiply: 1101
   // negate: 122
   // total: 1970
-  
+
   const Scalar v00000 = alpha;
   const Scalar v00001 = static_cast<Scalar>(0.5);
   const Scalar v00002 = v00000 * v00000;
@@ -3573,8 +3573,7 @@ void quaternion_interpolation_no_conditional(const T0& q0, const T1& q1, const S
 }
 
 template <typename Scalar, typename T0, typename T1, typename T2, typename T3, typename T4>
-void quaternion_local_coordinates(const T0& q0, const T1& q1, T2&& result, T3&& D_q0, T4&& D_q1)
-{
+void quaternion_local_coordinates(const T0& q0, const T1& q1, T2&& result, T3&& D_q0, T4&& D_q1) {
   auto _q0 = wf::make_input_span<4, 1>(q0);
   auto _q1 = wf::make_input_span<4, 1>(q1);
   auto _result = wf::make_output_span<3, 1>(result);
@@ -3589,7 +3588,7 @@ void quaternion_local_coordinates(const T0& q0, const T1& q1, T2&& result, T3&& 
   // multiply: 259
   // negate: 50
   // total: 466
-  
+
   const Scalar v0000 = _q0(1, 0);
   const Scalar v0001 = _q1(2, 0);
   const Scalar v0002 = v0000 * v0001;
@@ -4091,4 +4090,4 @@ void quaternion_local_coordinates(const T0& q0, const T1& q1, T2&& result, T3&& 
   _result(2, 0) = v0062;
 }
 
-} // namespace gen
+}  // namespace gen

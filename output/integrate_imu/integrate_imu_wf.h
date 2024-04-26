@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cstdint>
 
-#include <wf_runtime/span.h>
+#include <wrenfold/span.h>
 
 namespace gen {
 
