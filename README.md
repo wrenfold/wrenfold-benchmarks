@@ -11,6 +11,7 @@ As with all performance assessment, **your mileage may vary** and there is no pe
 
 - The original python symbolic implementations can be found in the [scripts](/scripts) directory.
 - SymForce outputs were last updated using version `0.9.0`.
+- For SymForce generated methods, we compare to both "chain rule" and "first order approximation" versions of the generated functions. See sections `B.1` and `B.2` of the [paper](https://arxiv.org/abs/2204.07889). wrenfold outputs are always computed via the chain-rule method.
 
 ## Building
 

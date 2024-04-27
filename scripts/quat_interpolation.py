@@ -1,5 +1,7 @@
-from pathlib import Path
-import time
+"""
+Generate quaternion interpolation with derivatives using symforce.
+"""
+import argparse
 
 import symforce
 
@@ -16,11 +18,16 @@ from symforce.jacobian_helpers import (
 from symforce.values import Values
 from symforce.type_helpers import symbolic_inputs
 
-THIS_DIR = Path(__file__).parent.absolute()
+from utils import get_output_dir, time_operation
 
 
 def quat_interpolate(q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar,
                      jacobian_method: str) -> Values:
+    """
+    Interpolate between two quaternions in the tangent space.
+    
+    Generate derivatives as well wrt both quaternions.
+    """
     q0 = geo.Rot3.from_storage(q0_xyzw)
     q1 = geo.Rot3.from_storage(q1_xyzw)
     w01 = geo.V3(q0.local_coordinates(q1, epsilon=1.0e-16))
@@ -37,46 +44,54 @@ def quat_interpolate(q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar,
     return result
 
 
-def quat_interpolate_chain(q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar):
-    return quat_interpolate(q0_xyzw, q1_xyzw, alpha, jacobian_method="chain")
-
-
-def quat_interpolate_first_order(q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar):
-    return quat_interpolate(q0_xyzw, q1_xyzw, alpha, jacobian_method="first_order")
-
-
-def main():
-    start = time.time()
-    config = CppConfig()
-
+def generate_quat_interpolate_chain(output_dir: T.Optional[T.Openable] = None):
+    def quat_interpolate_chain(q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar):
+        return quat_interpolate(q0_xyzw, q1_xyzw, alpha, jacobian_method="chain")
+    
     inputs = symbolic_inputs(quat_interpolate_chain)
     cg = Codegen(
         inputs,
         outputs=quat_interpolate_chain(**inputs),
-        config=config,
+        config=CppConfig(),
         name="quat_interpolate_chain",
         return_key=None,
     )
     cg.generate_function(
-        output_dir=THIS_DIR / "output" / "quat_interpolation",
+        output_dir=output_dir,
         skip_directory_nesting=True,
     )
 
+
+def generate_quat_interpolate_first_order(output_dir: T.Optional[T.Openable] = None):
+    def quat_interpolate_first_order(q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar):
+        return quat_interpolate(q0_xyzw, q1_xyzw, alpha, jacobian_method="first_order")
+    
     inputs = symbolic_inputs(quat_interpolate_first_order)
     cg = Codegen(
         inputs,
         outputs=quat_interpolate_first_order(**inputs),
-        config=config,
+        config=CppConfig(),
         name="quat_interpolate_first_order",
         return_key=None,
     )
     cg.generate_function(
-        output_dir=THIS_DIR / "output" / "quat_interpolation",
+        output_dir=output_dir,
         skip_directory_nesting=True,
     )
 
-    end = time.time()
-    print(f"Elapsed time: {end - start}")
+
+def main():
+    parser = argparse.ArgumentParser(__doc__)
+    parser.add_argument('--profile', type=int, default=None)
+    args = parser.parse_args()
+
+    if args.profile is None:
+        output_dir = get_output_dir("quat_interpolation")
+        generate_quat_interpolate_chain(output_dir)
+        generate_quat_interpolate_first_order(output_dir)
+    else:
+        time_operation(func=generate_quat_interpolate_chain, runs=args.profile)
+        time_operation(func=generate_quat_interpolate_first_order, runs=args.profile)
 
 
 if __name__ == "__main__":
