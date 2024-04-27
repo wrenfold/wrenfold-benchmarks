@@ -13,12 +13,14 @@ else()
   set(WARNING_FLAGS -Wall -Wextra -pedantic -Werror -Wno-sign-compare)
 endif()
 
-add_executable(run_benchmarks imu_integration.cc quat_interpolation.cc
-                              matrix_mul.cc)
+add_executable(
+  run_benchmarks benchmarks/imu_integration.cc benchmarks/quat_interpolation.cc
+                 benchmarks/matrix_mul.cc)
 target_link_libraries(run_benchmarks benchmark::benchmark_main eigen symforce
                       wrenfold_runtime)
 target_compile_options(run_benchmarks PRIVATE ${WARNING_FLAGS})
-target_compile_features(run_benchmarks PUBLIC cxx_std_17)
+target_compile_features(run_benchmarks PRIVATE cxx_std_17)
+target_include_directories(run_benchmarks PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   message(STATUS "Adding release mode optimization flags.")
