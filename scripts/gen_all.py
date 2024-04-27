@@ -7,8 +7,9 @@ import subprocess
 
 def main():
     scripts = [
-        'imu_integration.py',
-        'quat_interpolation.py'
+        'gen_imu_integration_sf.py',
+        'gen_quat_interpolation_sf.py',
+        'gen_quat_interpolation_wf.py',
     ]
     for name in scripts:
         subprocess.check_call([
