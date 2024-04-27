@@ -22,12 +22,13 @@ struct integration_input {
   double dt;
 };
 
-std::vector<integration_input> generate_integration_data(int num_samples) {
+std::vector<integration_input> generate_integration_data(const std::size_t num_samples) {
   std::default_random_engine engine{0};
   std::uniform_real_distribution<double> dist{-1.0, 1.0};
   const auto u = [&]() { return dist(engine); };
 
   std::vector<integration_input> inputs{};
+  inputs.reserve(num_samples);
   for (std::size_t i = 0; i < num_samples; ++i) {
     integration_input sample{};
     sample.i_R_j = Eigen::Vector4d{u(), u(), u(), u()}.normalized();
