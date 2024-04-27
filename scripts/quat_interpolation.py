@@ -25,7 +25,7 @@ def quat_interpolate(q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar,
                      jacobian_method: str) -> Values:
     """
     Interpolate between two quaternions in the tangent space.
-    
+
     Generate derivatives as well wrt both quaternions.
     """
     q0 = geo.Rot3.from_storage(q0_xyzw)
@@ -45,9 +45,10 @@ def quat_interpolate(q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar,
 
 
 def generate_quat_interpolate_chain(output_dir: T.Optional[T.Openable] = None):
+
     def quat_interpolate_chain(q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar):
         return quat_interpolate(q0_xyzw, q1_xyzw, alpha, jacobian_method="chain")
-    
+
     inputs = symbolic_inputs(quat_interpolate_chain)
     cg = Codegen(
         inputs,
@@ -63,9 +64,10 @@ def generate_quat_interpolate_chain(output_dir: T.Optional[T.Openable] = None):
 
 
 def generate_quat_interpolate_first_order(output_dir: T.Optional[T.Openable] = None):
+
     def quat_interpolate_first_order(q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar):
         return quat_interpolate(q0_xyzw, q1_xyzw, alpha, jacobian_method="first_order")
-    
+
     inputs = symbolic_inputs(quat_interpolate_first_order)
     cg = Codegen(
         inputs,

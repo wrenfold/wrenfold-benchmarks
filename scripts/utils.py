@@ -3,6 +3,7 @@ import pathlib
 import timeit
 import typing as T
 
+
 def get_output_dir(name: str) -> pathlib.Path:
     return pathlib.Path(__file__).parent.parent.absolute() / "generated" / name
 
