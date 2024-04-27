@@ -1,3 +1,6 @@
 build/
 build-*/
+cmake-*/
+__pycache__/
+.idea/
 .vscode/

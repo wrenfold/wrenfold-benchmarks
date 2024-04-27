@@ -1,15 +1,15 @@
-// Bencmark quaternion interpolation method.
+// Benchmark quaternion interpolation method.
 #include <iostream>
 #include <random>
 #include <vector>
 
 #include <benchmark/benchmark.h>
 
-#include "wf_runtime/span_eigen.h"
+#include <wrenfold/span_eigen.h>
 
-#include "quat_interpolation/quat_interpolate_chain.h"
-#include "quat_interpolation/quat_interpolate_first_order.h"
-#include "quat_interpolation/quat_interpolate_wf.h"
+#include "generated/quat_interpolation/quat_interpolate_chain.h"
+#include "generated/quat_interpolation/quat_interpolate_first_order.h"
+#include "generated/quat_interpolation/quat_interpolate_wf.h"
 
 std::vector<Eigen::Vector4d> generate_quaternions(int num_samples) {
   std::default_random_engine engine{0};
@@ -34,9 +34,9 @@ Eigen::Matrix<double, 4, 3> retract_derivative(const Eigen::Quaterniond& q) {
   const double qz = q.z();
   const double qw = q.w();
   // clang-format off
-  return (Eigen::Matrix<double, 4, 3>() << 
+  return (Eigen::Matrix<double, 4, 3>() <<
    qw / 2, -qz / 2, qy / 2,
-   qz / 2, qw / 2, -qx / 2, 
+   qz / 2, qw / 2, -qx / 2,
   -qy / 2, qx / 2, qw / 2,
   -qx / 2, -qy / 2, -qz / 2)
       .finished();
@@ -51,9 +51,9 @@ Eigen::Matrix<double, 3, 4> local_coordinates_derivative(const Eigen::Quaternion
   const double qz = q.z();
   const double qw = q.w();
   // clang-format off
-  return (Eigen::Matrix<double, 3, 4>() << 
+  return (Eigen::Matrix<double, 3, 4>() <<
     2 * qw, 2 * qz, -2 * qy, -2 * qx,
-    -2 * qz, 2 * qw, 2 * qx, -2 * qy, 
+    -2 * qz, 2 * qw, 2 * qx, -2 * qy,
     2 * qy, -2 * qx, 2 * qw, -2 * qz)
       .finished();
   // clang-format on
@@ -358,4 +358,3 @@ BENCHMARK(BM_QuatLocalCoordsWrenfold)->Iterations(1000000)->Unit(benchmark::kNan
 // BENCHMARK(BM_QuatInterpolationWrenfoldNoConditional)
 //     ->Iterations(1000000)
 //     ->Unit(benchmark::kNanosecond);
-BENCHMARK_MAIN();

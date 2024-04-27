@@ -1,15 +1,15 @@
-// Bencmark IMU integration method.
+// Benchmark IMU integration method.
 #include <iostream>
 #include <random>
 #include <vector>
 
 #include <benchmark/benchmark.h>
 
-#include "wf_runtime/span_eigen.h"
+#include <wrenfold/span_eigen.h>
 
-#include "integrate_imu/integrate_imu_chain.h"
-#include "integrate_imu/integrate_imu_first_order.h"
-#include "integrate_imu/integrate_imu_wf.h"
+#include "generated/integrate_imu/integrate_imu_chain.h"
+#include "generated/integrate_imu/integrate_imu_first_order.h"
+#include "generated/integrate_imu/integrate_imu_wf.h"
 
 struct integration_input {
   Eigen::Vector4d i_R_j;
@@ -133,4 +133,3 @@ static void BM_ImuIntegrationWrenfold(benchmark::State& state) {
 BENCHMARK(BM_ImuIntegrationSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_ImuIntegrationSymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_ImuIntegrationWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK_MAIN();
