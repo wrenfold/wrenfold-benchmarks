@@ -14,6 +14,19 @@ from wrenfold.sympy_conversion import to_sympy, from_sympy
 from utils import get_output_dir, generate_wrenfold_function
 
 
+# Hack we need to deal with the global epsilon.
+INITIALIZED_SYMFORCE = False
+
+
+def configure_symforce():
+    global INITIALIZED_SYMFORCE
+    if not INITIALIZED_SYMFORCE:
+        import symforce
+        symforce.set_symbolic_api("sympy")
+        symforce.set_epsilon_to_symbol()
+        INITIALIZED_SYMFORCE = True
+
+
 def quat_local_coordinates_impl(q0_xyzw: Vector4, q1_xyzw: Vector4, use_conditional: bool):
     """
     Tangent-space difference between two scalar-last quaternions, w/ derivatives.
@@ -47,10 +60,7 @@ def quat_local_coordinates_sffo(q0_xyzw: Vector4, q1_xyzw: Vector4):
     Compute the "first order" local coordinates using symforce, then convert it back
     to wrenfold for code generation.
     """
-    import symforce
-
-    symforce.set_symbolic_api("sympy")
-    symforce.set_epsilon_to_symbol()
+    configure_symforce()
 
     from quat_expressions_sf import quat_local_coordinates as quat_local_coordinates_sf
 
@@ -101,10 +111,29 @@ def quat_interpolation_no_conditional(q0_xyzw: Vector4, q1_xyzw: Vector4, alpha:
     return quat_interpolation_impl(q0_xyzw, q1_xyzw, alpha, use_conditional=False)
 
 
+def quat_interpolation_sffo(q0_xyzw: Vector4, q1_xyzw: Vector4, alpha: RealScalar):
+    """
+    Compute the "first order" quat interpolation using symforce, then convert it back
+    to wrenfold for code generation.
+    """
+    configure_symforce()
+
+    from quat_expressions_sf import quat_interpolate as quat_interpolate_sf
+
+    values = quat_interpolate_sf(
+        to_sympy(q0_xyzw), to_sympy(q1_xyzw), alpha=to_sympy(alpha), jacobian_method="first_order")
+    return (
+        OutputArg(from_sympy(values["q_out"].mat), name="q_out"),
+        OutputArg(from_sympy(values["D0"].mat), name="d0", is_optional=True),
+        OutputArg(from_sympy(values["D1"].mat), name="d1", is_optional=True),
+    )
+
+
 def main():
     output_dir = get_output_dir("quat_interpolation") / "wf"
 
     params = OptimizationParams()
+    params.factorization_passes = 3
     generate_wrenfold_function(quat_local_coordinates, output_dir=output_dir, params=params)
     generate_wrenfold_function(
         quat_local_coordinates_no_conditional, output_dir=output_dir, params=params)
@@ -113,6 +142,7 @@ def main():
     generate_wrenfold_function(quat_interpolation, output_dir=output_dir, params=params)
     generate_wrenfold_function(
         quat_interpolation_no_conditional, output_dir=output_dir, params=params)
+    generate_wrenfold_function(quat_interpolation_sffo, output_dir=output_dir, params=params)
 
 
 if __name__ == "__main__":

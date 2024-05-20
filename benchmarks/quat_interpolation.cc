@@ -1,6 +1,7 @@
 // Benchmark quaternion interpolation method.
 #include <random>
 #include <vector>
+#include <iostream>
 
 #include <benchmark/benchmark.h>
 
@@ -13,6 +14,7 @@
 
 #include "generated/quat_interpolation/wf/quat_interpolation.h"
 #include "generated/quat_interpolation/wf/quat_interpolation_no_conditional.h"
+#include "generated/quat_interpolation/wf/quat_interpolation_sffo.h"
 #include "generated/quat_interpolation/wf/quat_local_coordinates.h"
 #include "generated/quat_interpolation/wf/quat_local_coordinates_sffo.h"
 
@@ -56,12 +58,18 @@ void bench_quat_interpolation(benchmark::State& state, F&& func) {
   constexpr std::size_t num_samples = 1000;
   const auto inputs = generate_quaternions(num_samples);
 
+  Eigen::Vector4d q_out;
+  Eigen::Matrix3d D0_out;
+  Eigen::Matrix3d D1_out;
+  func(inputs[0], inputs[1], q_out, D0_out, D1_out);
+
+#if 0
+  std::cout << "q_out = " << q_out.transpose() << std::endl;
+  std::cout << "D0 = " << D0_out << std::endl;  
+#endif
+
   std::size_t index = 0;
   for (auto _ : state) {
-    Eigen::Vector4d q_out;
-    Eigen::Matrix3d D0_out;
-    Eigen::Matrix3d D1_out;
-
     func(inputs[index % inputs.size()], inputs[(index + 1) % inputs.size()], q_out, D0_out, D1_out);
 
     benchmark::DoNotOptimize(q_out);
@@ -71,40 +79,40 @@ void bench_quat_interpolation(benchmark::State& state, F&& func) {
   }
 }
 
-static void BM_QuatLocalCoordsHandwritten(benchmark::State& state) {
+void BM_QuatLocalCoordsHandwritten(benchmark::State& state) {
   bench_local_coords(state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1,
                                Eigen::Vector3d& v_out, Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
     v_out = quaternion_local_coords(Eigen::Quaterniond(q0), Eigen::Quaterniond(q1), &D0, &D1);
   });
 }
 
-static void BM_QuatLocalCoordsSymforceChain(benchmark::State& state) {
+void BM_QuatLocalCoordsSymforceChain(benchmark::State& state) {
   bench_local_coords(state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1,
                                Eigen::Vector3d& v_out, Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
     sym::QuatLocalCoordinatesChain(q0, q1, &v_out, &D0, &D1);
   });
 }
 
-static void BM_QuatLocalCoordsSymforceFirstOrder(benchmark::State& state) {
+void BM_QuatLocalCoordsSymforceFirstOrder(benchmark::State& state) {
   bench_local_coords(state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1,
                                Eigen::Vector3d& v_out, Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
     sym::QuatLocalCoordinatesFirstOrder(q0, q1, &v_out, &D0, &D1);
   });
 }
 
-static void BM_QuatLocalCoordsWrenfold(benchmark::State& state) {
+void BM_QuatLocalCoordsWrenfold(benchmark::State& state) {
   bench_local_coords(state, [](auto&&... args) {
     gen::quat_local_coordinates<double>(std::forward<decltype(args)>(args)...);
   });
 }
 
-static void BM_QuatLocalCoordsSFFOWrenfold(benchmark::State& state) {
+void BM_QuatLocalCoordsSFFOWrenfold(benchmark::State& state) {
   bench_local_coords(state, [](auto&&... args) {
     gen::quat_local_coordinates_sffo<double>(std::forward<decltype(args)>(args)...);
   });
 }
 
-static void BM_QuatInterpolationHandwritten(benchmark::State& state) {
+void BM_QuatInterpolationHandwritten(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
                 Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
@@ -112,7 +120,7 @@ static void BM_QuatInterpolationHandwritten(benchmark::State& state) {
       });
 }
 
-static void BM_QuatInterpolationSymforceChain(benchmark::State& state) {
+void BM_QuatInterpolationSymforceChain(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
                 Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
@@ -120,7 +128,7 @@ static void BM_QuatInterpolationSymforceChain(benchmark::State& state) {
       });
 }
 
-static void BM_QuatInterpolationSymforceFirstOrder(benchmark::State& state) {
+void BM_QuatInterpolationSymforceFirstOrder(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
                 Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
@@ -128,18 +136,26 @@ static void BM_QuatInterpolationSymforceFirstOrder(benchmark::State& state) {
       });
 }
 
-static void BM_QuatInterpolationWrenfold(benchmark::State& state) {
+void BM_QuatInterpolationWrenfold(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
                 Eigen::Matrix3d& D0,
                 Eigen::Matrix3d& D1) { gen::quat_interpolation(q0, q1, 0.312, q_out, D0, D1); });
 }
 
-static void BM_QuatInterpolationNoConditionalWrenfold(benchmark::State& state) {
+void BM_QuatInterpolationNoConditionalWrenfold(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
                 Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
         gen::quat_interpolation_no_conditional(q0, q1, 0.312, q_out, D0, D1);
+      });
+}
+
+void BM_QuatInterpolationSFFOWrenfold(benchmark::State& state) {
+  bench_quat_interpolation(
+      state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
+                Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
+        gen::quat_interpolation_sffo(q0, q1, 0.312, q_out, D0, D1);
       });
 }
 
@@ -152,6 +168,7 @@ BENCHMARK(BM_QuatInterpolationWrenfold)->Iterations(1000000)->Unit(benchmark::kN
 BENCHMARK(BM_QuatInterpolationNoConditionalWrenfold)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatInterpolationSFFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 
 BENCHMARK(BM_QuatLocalCoordsHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatLocalCoordsSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
