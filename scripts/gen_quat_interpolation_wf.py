@@ -12,19 +12,7 @@ from wrenfold.type_annotations import Vector4, RealScalar
 from wrenfold.sympy_conversion import to_sympy, from_sympy
 
 from utils import get_output_dir, generate_wrenfold_function
-
-
-# Hack we need to deal with the global epsilon.
-INITIALIZED_SYMFORCE = False
-
-
-def configure_symforce():
-    global INITIALIZED_SYMFORCE
-    if not INITIALIZED_SYMFORCE:
-        import symforce
-        symforce.set_symbolic_api("sympy")
-        symforce.set_epsilon_to_symbol()
-        INITIALIZED_SYMFORCE = True
+from symforce_utils import configure_symforce
 
 
 def quat_local_coordinates_impl(q0_xyzw: Vector4, q1_xyzw: Vector4, use_conditional: bool):
