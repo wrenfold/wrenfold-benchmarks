@@ -1,8 +1,6 @@
 """
 Generate IMU integration logic using symforce.
 """
-import argparse
-
 import symforce
 
 symforce.set_epsilon_to_symbol()
@@ -19,7 +17,7 @@ from symforce.jacobian_helpers import (
 )
 from symforce.type_helpers import symbolic_inputs
 
-from utils import get_output_dir, time_operation
+from utils import get_output_dir
 
 
 def blockwise_jacobians(output_states, input_states, jacobian_method: str) -> geo.Matrix:
@@ -173,17 +171,9 @@ def generate_integrate_imu_first_order(output_dir: T.Optional[T.Openable] = None
 
 
 def main():
-    parser = argparse.ArgumentParser(__doc__)
-    parser.add_argument('--profile', type=int, default=None)
-    args = parser.parse_args()
-
-    if args.profile is None:
-        output_dir = get_output_dir("integrate_imu")
-        generate_integrate_imu(output_dir)
-        generate_integrate_imu_first_order(output_dir)
-    else:
-        time_operation(func=generate_integrate_imu, runs=args.profile)
-        time_operation(func=generate_integrate_imu_first_order, runs=args.profile)
+    output_dir = get_output_dir("integrate_imu")
+    generate_integrate_imu(output_dir)
+    generate_integrate_imu_first_order(output_dir)
 
 
 if __name__ == "__main__":

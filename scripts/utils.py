@@ -1,13 +1,29 @@
 """Shared utilities."""
+
 import pathlib
 import timeit
 import typing as T
+
+from wrenfold import code_generation
 
 
 def get_output_dir(name: str) -> pathlib.Path:
     return pathlib.Path(__file__).parent.parent.absolute() / "generated" / name
 
 
-def time_operation(func: T.Callable, runs: int):
-    time = timeit.timeit("func()", number=runs, globals=dict(func=func))
-    print(f"Time for {func.__name__}: {time / runs} seconds/run")
+def generate_wrenfold_function(func: T.Callable,
+                               output_dir: T.Optional[pathlib.Path] = None,
+                               params: T.Optional[code_generation.OptimizationParams] = None):
+    """
+    Generate a function using wrenfold.
+    """
+
+    def gen():
+        code = code_generation.generate_function(
+            func=func, generator=code_generation.CppGenerator(), optimization_params=params)
+        code = code_generation.CppGenerator.apply_preamble(code, namespace="gen")
+        if output_dir is not None:
+            code_generation.mkdir_and_write_file(code=code, path=output_dir / f"{func.__name__}.h")
+
+    duration = timeit.timeit("gen()", number=1, globals=dict(gen=gen))
+    print(f"wrenfold generation time for {func.__name__}: {duration}s")
