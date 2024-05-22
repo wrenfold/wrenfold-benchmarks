@@ -8,6 +8,7 @@ import subprocess
 def main():
     scripts = [
         'gen_imu_integration_sf.py',
+        'gen_imu_integration_wf.py',
         'gen_quat_interpolation_sf.py',
         'gen_quat_interpolation_wf.py',
     ]

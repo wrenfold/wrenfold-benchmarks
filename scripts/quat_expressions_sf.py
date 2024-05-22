@@ -1,3 +1,4 @@
+"""Quaternion interpolation expressions in symforce."""
 from symforce import geo
 from symforce import typing as T
 from symforce.jacobian_helpers import (

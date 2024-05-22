@@ -15,7 +15,8 @@ endif()
 
 add_executable(
   run_benchmarks benchmarks/quat_interpolation.cc
-                 benchmarks/matrix_mul.cc)
+                 benchmarks/matrix_mul.cc
+                 benchmarks/imu_integration.cc)
 target_link_libraries(run_benchmarks benchmark::benchmark_main eigen symforce
                       wrenfold_runtime)
 target_compile_options(run_benchmarks PRIVATE ${WARNING_FLAGS})

@@ -61,9 +61,8 @@ void bench_quat_interpolation(benchmark::State& state, F&& func) {
   Eigen::Vector4d q_out;
   Eigen::Matrix3d D0_out;
   Eigen::Matrix3d D1_out;
-  func(inputs[0], inputs[1], q_out, D0_out, D1_out);
-
 #if 0
+  func(inputs[0], inputs[1], q_out, D0_out, D1_out);
   std::cout << "q_out = " << q_out.transpose() << std::endl;
   std::cout << "D0 = " << D0_out << std::endl;  
 #endif
