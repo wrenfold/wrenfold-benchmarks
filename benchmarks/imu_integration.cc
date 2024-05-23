@@ -12,6 +12,8 @@
 #include "generated/imu_integration/wf/integrate_imu.h"
 #include "generated/imu_integration/wf/integrate_imu_sffo.h"
 
+#include "imu_integration_handwritten.h"
+
 struct integration_input {
   Eigen::Vector4d i_R_j;
   Eigen::Vector3d i_p_j;
@@ -123,7 +125,26 @@ void BM_ImuIntegrationSFFOWrenfold(benchmark::State& state) {
   });
 }
 
+void BM_ImuIntegrationHandwritten(benchmark::State& state) {
+  bench_imu_integration(
+      state,
+      [](const Eigen::Matrix<double, 4, 1>& i_R_j_xyzw, const Eigen::Matrix<double, 3, 1>& i_p_j,
+         const Eigen::Matrix<double, 3, 1>& i_v_j, const Eigen::Matrix<double, 3, 1>& gyro_bias,
+         const Eigen::Matrix<double, 3, 1>& accelerometer_bias,
+         const Eigen::Matrix<double, 3, 1>& angular_velocity,
+         const Eigen::Matrix<double, 3, 1>& linear_acceleration, const double dt,
+         Eigen::Matrix<double, 4, 1>& i_R_k_out, Eigen::Matrix<double, 3, 1>& i_p_k_out,
+         Eigen::Matrix<double, 3, 1>& i_v_k_out, Eigen::Matrix<double, 9, 9>& k_D_j_out,
+         Eigen::Matrix<double, 9, 6>& k_D_measurements_out,
+         Eigen::Matrix<double, 9, 6>& k_D_bias_out) {
+        handwritten::integrate_imu(i_R_j_xyzw, i_p_j, i_v_j, gyro_bias, accelerometer_bias,
+                                   angular_velocity, linear_acceleration, dt, i_R_k_out, i_p_k_out,
+                                   i_v_k_out, &k_D_j_out, &k_D_measurements_out, &k_D_bias_out);
+      });
+}
+
 BENCHMARK(BM_ImuIntegrationSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_ImuIntegrationSymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_ImuIntegrationWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_ImuIntegrationSFFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_ImuIntegrationHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
