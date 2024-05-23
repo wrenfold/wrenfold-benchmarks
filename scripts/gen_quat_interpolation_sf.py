@@ -2,6 +2,7 @@
 Generate quaternion interpolation with derivatives using symforce.
 """
 import symforce
+
 symforce.set_symbolic_api("symengine")
 symforce.set_epsilon_to_symbol()
 
@@ -12,7 +13,6 @@ from utils import get_output_dir
 from symforce_utils import generate_symforce_function
 
 from quat_expressions_sf import quat_interpolate, quat_local_coordinates
-
 
 
 def quat_interpolate_chain(q0_xyzw: geo.V4, q1_xyzw: geo.V4, alpha: T.Scalar):

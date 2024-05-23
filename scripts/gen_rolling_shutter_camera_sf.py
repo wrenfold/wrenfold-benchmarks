@@ -2,6 +2,7 @@
 Generate first-order rolling shutter camera model using symforce.
 """
 import symforce
+
 symforce.set_symbolic_api("symengine")
 symforce.set_epsilon_to_symbol()
 
@@ -36,9 +37,7 @@ def opencv_project(p_cam: geo.V3, camera: geo.V9) -> geo.M21:
     x, y = p_image_plane
 
     fx, fy, cx, cy, k1, k2, k3, p1, p2 = camera
-    radial_coeff = (
-        1 + k1 * r2 + k2 * (r2 * r2) + k3 * (r2 * r2 * r2)
-    )
+    radial_coeff = (1 + k1 * r2 + k2 * (r2 * r2) + k3 * (r2 * r2 * r2))
 
     # Compute distorted location:
     x_d = radial_coeff * x + 2 * p1 * x * y + p2 * (r2 + 2 * x * x)
@@ -66,15 +65,12 @@ def integrate_and_project(
 
     # Transform IMU to the specific row time:
     world_R_imu_at_row = world_R_imu * geo.Rot3.from_tangent(
-        angular_velocity_imu * row_time, epsilon=1.0e-16
-    )
+        angular_velocity_imu * row_time, epsilon=1.0e-16)
     world_t_imu_at_row = world_t_imu + world_v_imu * row_time
 
     # Apply extrinsic transform:
     world_R_cam = world_R_imu_at_row * imu_R_cam
-    world_t_cam = (
-        world_t_imu_at_row + world_R_imu_at_row.to_rotation_matrix() * imu_t_cam
-    )
+    world_t_cam = (world_t_imu_at_row + world_R_imu_at_row.to_rotation_matrix() * imu_t_cam)
 
     # Transform the point to camera frame:
     p_cam = world_R_cam.inverse().to_rotation_matrix() * (p_world - world_t_cam)
@@ -90,8 +86,7 @@ def integrate_and_project(
         D_imu_t_cam=diff(p_image, imu_t_cam, jacobian_method),
         D_angular_velocity_imu=diff(p_image, angular_velocity_imu, jacobian_method),
         D_world_v_imu=diff(p_image, world_v_imu, jacobian_method),
-        D_p_world=diff(p_image, p_world, jacobian_method)
-    )
+        D_p_world=diff(p_image, p_world, jacobian_method))
 
 
 def integrate_and_project_chain(
@@ -115,8 +110,7 @@ def integrate_and_project_chain(
         p_world,
         row_time,
         camera,
-        jacobian_method="chain"
-    )
+        jacobian_method="chain")
 
 
 def integrate_and_project_first_order(
@@ -140,8 +134,7 @@ def integrate_and_project_first_order(
         p_world,
         row_time,
         camera,
-        jacobian_method="first_order"
-    )
+        jacobian_method="first_order")
 
 
 def main():

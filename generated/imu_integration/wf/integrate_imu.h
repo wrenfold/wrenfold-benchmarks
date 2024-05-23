@@ -7,9 +7,13 @@
 
 namespace gen {
 
-template <typename Scalar, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13>
-void integrate_imu(const T0& i_R_j_xyzw, const T1& i_p_j, const T2& i_v_j, const T3& gyro_bias, const T4& accelerometer_bias, const T5& angular_velocity, const T6& linear_acceleration, const Scalar dt, T8&& i_R_k, T9&& i_p_k, T10&& i_v_k, T11&& k_D_j, T12&& k_D_measurements, T13&& k_D_bias)
-{
+template <typename Scalar, typename T0, typename T1, typename T2, typename T3, typename T4,
+          typename T5, typename T6, typename T8, typename T9, typename T10, typename T11,
+          typename T12, typename T13>
+void integrate_imu(const T0& i_R_j_xyzw, const T1& i_p_j, const T2& i_v_j, const T3& gyro_bias,
+                   const T4& accelerometer_bias, const T5& angular_velocity,
+                   const T6& linear_acceleration, const Scalar dt, T8&& i_R_k, T9&& i_p_k,
+                   T10&& i_v_k, T11&& k_D_j, T12&& k_D_measurements, T13&& k_D_bias) {
   auto _i_R_j_xyzw = wf::make_input_span<4, 1>(i_R_j_xyzw);
   auto _i_p_j = wf::make_input_span<3, 1>(i_p_j);
   auto _i_v_j = wf::make_input_span<3, 1>(i_v_j);
@@ -33,7 +37,7 @@ void integrate_imu(const T0& i_R_j_xyzw, const T1& i_p_j, const T2& i_v_j, const
   // multiply: 467
   // negate: 21
   // total: 744
-  
+
   const Scalar v00013 = _gyro_bias(1, 0);
   const Scalar v00006 = _gyro_bias(0, 0);
   const Scalar v01561 = -v00013;
@@ -1066,4 +1070,4 @@ void integrate_imu(const T0& i_R_j_xyzw, const T1& i_p_j, const T2& i_v_j, const
   _i_v_k(2, 0) = v00164;
 }
 
-} // namespace gen
+}  // namespace gen

@@ -1,7 +1,7 @@
 // Benchmark quaternion interpolation method.
+#include <iostream>
 #include <random>
 #include <vector>
-#include <iostream>
 
 #include <benchmark/benchmark.h>
 
@@ -64,7 +64,7 @@ void bench_quat_interpolation(benchmark::State& state, F&& func) {
 #if 0
   func(inputs[0], inputs[1], q_out, D0_out, D1_out);
   std::cout << "q_out = " << q_out.transpose() << std::endl;
-  std::cout << "D0 = " << D0_out << std::endl;  
+  std::cout << "D0 = " << D0_out << std::endl;
 #endif
 
   std::size_t index = 0;

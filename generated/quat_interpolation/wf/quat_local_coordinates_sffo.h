@@ -8,8 +8,7 @@
 namespace gen {
 
 template <typename Scalar, typename T0, typename T1, typename T2, typename T3, typename T4>
-void quat_local_coordinates_sffo(const T0& q0_xyzw, const T1& q1_xyzw, T2&& out, T3&& d0, T4&& d1)
-{
+void quat_local_coordinates_sffo(const T0& q0_xyzw, const T1& q1_xyzw, T2&& out, T3&& d0, T4&& d1) {
   auto _q0_xyzw = wf::make_input_span<4, 1>(q0_xyzw);
   auto _q1_xyzw = wf::make_input_span<4, 1>(q1_xyzw);
   auto _out = wf::make_output_span<3, 1>(out);
@@ -25,7 +24,7 @@ void quat_local_coordinates_sffo(const T0& q0_xyzw, const T1& q1_xyzw, T2&& out,
   // multiply: 94
   // negate: 3
   // total: 154
-  
+
   const Scalar v0008 = _q0_xyzw(1, 0);
   const Scalar v0005 = _q1_xyzw(1, 0);
   const Scalar v0012 = _q0_xyzw(0, 0);
@@ -237,4 +236,4 @@ void quat_local_coordinates_sffo(const T0& q0_xyzw, const T1& q1_xyzw, T2&& out,
   _out(2, 0) = v0372;
 }
 
-} // namespace gen
+}  // namespace gen

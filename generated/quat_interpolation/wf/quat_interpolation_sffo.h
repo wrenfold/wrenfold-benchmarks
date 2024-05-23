@@ -8,8 +8,8 @@
 namespace gen {
 
 template <typename Scalar, typename T0, typename T1, typename T3, typename T4, typename T5>
-void quat_interpolation_sffo(const T0& q0_xyzw, const T1& q1_xyzw, const Scalar alpha, T3&& q_out, T4&& d0, T5&& d1)
-{
+void quat_interpolation_sffo(const T0& q0_xyzw, const T1& q1_xyzw, const Scalar alpha, T3&& q_out,
+                             T4&& d0, T5&& d1) {
   auto _q0_xyzw = wf::make_input_span<4, 1>(q0_xyzw);
   auto _q1_xyzw = wf::make_input_span<4, 1>(q1_xyzw);
   auto _q_out = wf::make_output_span<4, 1>(q_out);
@@ -25,7 +25,7 @@ void quat_interpolation_sffo(const T0& q0_xyzw, const T1& q1_xyzw, const Scalar 
   // multiply: 467
   // negate: 13
   // total: 799
-  
+
   const Scalar v00008 = _q0_xyzw(1, 0);
   const Scalar v00005 = _q1_xyzw(1, 0);
   const Scalar v00012 = _q0_xyzw(0, 0);
@@ -889,4 +889,4 @@ void quat_interpolation_sffo(const T0& q0_xyzw, const T1& q1_xyzw, const Scalar 
   _q_out(3, 0) = v00847;
 }
 
-} // namespace gen
+}  // namespace gen

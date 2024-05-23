@@ -6,8 +6,7 @@ import typing as T
 
 from wrenfold import sym
 from wrenfold.code_generation import (
-    OutputArg,
-)
+    OutputArg,)
 from wrenfold.geometry import Quaternion
 from wrenfold.type_annotations import Vector4, Vector3, RealScalar
 from wrenfold.sympy_conversion import to_sympy, from_sympy
@@ -25,15 +24,9 @@ def blockwise_jacobians(
         jacobians_row = []
         for in_state in input_states:
             out_expressions = (
-                out_state.to_vector_wxyz()
-                if isinstance(out_state, Quaternion)
-                else out_state
-            )
+                out_state.to_vector_wxyz() if isinstance(out_state, Quaternion) else out_state)
             in_expressions = (
-                in_state.to_vector_wxyz()
-                if isinstance(in_state, Quaternion)
-                else in_state
-            )
+                in_state.to_vector_wxyz() if isinstance(in_state, Quaternion) else in_state)
 
             out_D_in = sym.jacobian(out_expressions, in_expressions)
             if isinstance(out_state, Quaternion):
@@ -82,9 +75,7 @@ def integrate_imu(
 
     # Rotation from frame `j` (start of integration) to frame `k` (end of integration)
     angular_vel_times_dt = angular_velocity_unbiased * dt
-    j_R_k: Quaternion = Quaternion.from_rotation_vector(
-        angular_vel_times_dt, epsilon=1.0e-16
-    )
+    j_R_k: Quaternion = Quaternion.from_rotation_vector(angular_vel_times_dt, epsilon=1.0e-16)
 
     # Rotate the acceleration back into frame `i`:
     accel_in_i = i_R_j.to_rotation_matrix() * linear_acceleration_unbiased
@@ -98,8 +89,7 @@ def integrate_imu(
 
     # Determine jacobians:
     k_D_j = blockwise_jacobians(
-        output_states=(i_R_k, i_p_k, i_v_k), input_states=(i_R_j, i_p_j, i_v_j)
-    )
+        output_states=(i_R_k, i_p_k, i_v_k), input_states=(i_R_j, i_p_j, i_v_j))
 
     k_D_measurements = blockwise_jacobians(
         output_states=(i_R_k, i_p_k, i_v_k),
@@ -155,9 +145,7 @@ def integrate_imu_sffo(
             name="k_D_measurements",
             is_optional=True,
         ),
-        OutputArg(
-            from_sympy(values["k_D_bias"].mat), name="k_D_bias", is_optional=True
-        ),
+        OutputArg(from_sympy(values["k_D_bias"].mat), name="k_D_bias", is_optional=True),
     )
 
 
