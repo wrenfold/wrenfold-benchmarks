@@ -12,6 +12,8 @@ def main():
         'gen_imu_integration_wf.py',
         'gen_quat_interpolation_sf.py',
         'gen_quat_interpolation_wf.py',
+        'gen_rolling_shutter_camera_sf.py',
+        'gen_rolling_shutter_camera_wf.py',
     ]
     for name in scripts:
         subprocess.check_call([sys.executable, str(Path(__file__).parent.absolute() / name)])

@@ -8,7 +8,7 @@ from wrenfold.code_generation import (
     OptimizationParams,
 )
 from wrenfold.geometry import Quaternion
-from wrenfold.type_annotations import Vector4, RealScalar
+from wrenfold.type_annotations import Vector4, FloatScalar
 from wrenfold.sympy_conversion import to_sympy, from_sympy
 
 from utils import get_output_dir, generate_wrenfold_function
@@ -63,7 +63,7 @@ def quat_local_coordinates_sffo(q0_xyzw: Vector4, q1_xyzw: Vector4):
 
 def quat_interpolation_impl(q0_xyzw: Vector4,
                             q1_xyzw: Vector4,
-                            alpha: RealScalar,
+                            alpha: FloatScalar,
                             use_conditional: bool = True):
     """
     Quaternion interpolation.
@@ -91,15 +91,15 @@ def quat_interpolation_impl(q0_xyzw: Vector4,
     )
 
 
-def quat_interpolation(q0_xyzw: Vector4, q1_xyzw: Vector4, alpha: RealScalar):
+def quat_interpolation(q0_xyzw: Vector4, q1_xyzw: Vector4, alpha: FloatScalar):
     return quat_interpolation_impl(q0_xyzw, q1_xyzw, alpha, use_conditional=True)
 
 
-def quat_interpolation_no_conditional(q0_xyzw: Vector4, q1_xyzw: Vector4, alpha: RealScalar):
+def quat_interpolation_no_conditional(q0_xyzw: Vector4, q1_xyzw: Vector4, alpha: FloatScalar):
     return quat_interpolation_impl(q0_xyzw, q1_xyzw, alpha, use_conditional=False)
 
 
-def quat_interpolation_sffo(q0_xyzw: Vector4, q1_xyzw: Vector4, alpha: RealScalar):
+def quat_interpolation_sffo(q0_xyzw: Vector4, q1_xyzw: Vector4, alpha: FloatScalar):
     """
     Compute the "first order" quat interpolation using symforce, then convert it back
     to wrenfold for code generation.

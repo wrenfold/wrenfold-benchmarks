@@ -113,7 +113,7 @@ inline void integrate_imu(
     k_D_measurements.topRows<3>().leftCols<3>() =
         local_coordinates_derivative(i_R_k) * i_R_k__D__j_R_k *
         j_R_k__D__ang_vel_unbiased_times_dt * ang_vel_unbiased_times_dt__D__ang_vel_unbiased;
-    k_D_measurements.topRows<3>().leftCols<3>().setZero();
+    k_D_measurements.topRows<3>().rightCols<3>().setZero();
 
     // Position:
     k_D_measurements.middleRows<3>(3).leftCols<3>().setZero();

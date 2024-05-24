@@ -81,7 +81,8 @@ void bench_quat_interpolation(benchmark::State& state, F&& func) {
 void BM_QuatLocalCoordsHandwritten(benchmark::State& state) {
   bench_local_coords(state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1,
                                Eigen::Vector3d& v_out, Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
-    v_out = quaternion_local_coords(Eigen::Quaterniond(q0), Eigen::Quaterniond(q1), &D0, &D1);
+    v_out = handwritten::quaternion_local_coords(Eigen::Quaterniond(q0), Eigen::Quaterniond(q1),
+                                                 &D0, &D1);
   });
 }
 
@@ -115,7 +116,7 @@ void BM_QuatInterpolationHandwritten(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
                 Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
-        quaternion_interpolate_manual(q0, q1, 0.312, q_out, &D0, &D1);
+        handwritten::quaternion_interpolate(q0, q1, 0.312, q_out, &D0, &D1);
       });
 }
 

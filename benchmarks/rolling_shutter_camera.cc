@@ -119,25 +119,28 @@ void BM_RollingShutterCameraSymforceChain(benchmark::State& state) {
       });
 }
 
-// void BM_ImuIntegrationSymforceFirstOrder(benchmark::State& state) {
-//   bench_imu_integration(
-//       state,
-//       [](const Eigen::Matrix<double, 4, 1>& i_R_j_xyzw, const Eigen::Matrix<double, 3, 1>& i_p_j,
-//          const Eigen::Matrix<double, 3, 1>& i_v_j, const Eigen::Matrix<double, 3, 1>& gyro_bias,
-//          const Eigen::Matrix<double, 3, 1>& accelerometer_bias,
-//          const Eigen::Matrix<double, 3, 1>& angular_velocity,
-//          const Eigen::Matrix<double, 3, 1>& linear_acceleration, const double dt,
-//          Eigen::Matrix<double, 4, 1>& i_R_k_out, Eigen::Matrix<double, 3, 1>& i_p_k_out,
-//          Eigen::Matrix<double, 3, 1>& i_v_k_out, Eigen::Matrix<double, 9, 9>& k_D_j_out,
-//          Eigen::Matrix<double, 9, 6>& k_D_measurements_out,
-//          Eigen::Matrix<double, 9, 6>& k_D_bias_out) {
-//         sym::IntegrateImuFirstOrder<double>(i_R_j_xyzw, i_p_j, i_v_j, gyro_bias,
-//         accelerometer_bias,
-//                                             angular_velocity, linear_acceleration, dt,
-//                                             &i_R_k_out, &i_p_k_out, &i_v_k_out, &k_D_j_out,
-//                                             &k_D_measurements_out, &k_D_bias_out);
-//       });
-// }
+void BM_RollingShutterCameraSymforceFirstOrder(benchmark::State& state) {
+  bench_projection(
+      state,
+      [](const Eigen::Quaterniond& world_R_imu_xyzw, const Eigen::Matrix<double, 3, 1>& world_t_imu,
+         const Eigen::Quaterniond& imu_R_cam_xyzw, const Eigen::Matrix<double, 3, 1>& imu_t_cam,
+         const Eigen::Matrix<double, 3, 1>& angular_velocity_imu,
+         const Eigen::Matrix<double, 3, 1>& world_v_imu, const Eigen::Matrix<double, 3, 1>& p_world,
+         const double row_time, const camera_params_t& camera, Eigen::Matrix<double, 2, 1>& p_image,
+         Eigen::Matrix<double, 2, 3>& D_world_R_imu, Eigen::Matrix<double, 2, 3>& D_world_t_imu,
+         Eigen::Matrix<double, 2, 3>& D_imu_R_cam, Eigen::Matrix<double, 2, 3>& D_imu_t_cam,
+         Eigen::Matrix<double, 2, 3>& D_angular_velocity_imu,
+         Eigen::Matrix<double, 2, 3>& D_world_v_imu, Eigen::Matrix<double, 2, 3>& D_p_world) {
+        sym::IntegrateAndProjectFirstOrder(
+            world_R_imu_xyzw.coeffs(), world_t_imu, imu_R_cam_xyzw.coeffs(), imu_t_cam,
+            angular_velocity_imu, world_v_imu, p_world, row_time,
+            (Eigen::Matrix<double, 9, 1>() << camera.fx, camera.fy, camera.cx, camera.cy, camera.k1,
+             camera.k2, camera.k3, camera.p1, camera.p2)
+                .finished(),
+            &p_image, &D_world_R_imu, &D_world_t_imu, &D_imu_R_cam, &D_imu_t_cam,
+            &D_angular_velocity_imu, &D_world_v_imu, &D_p_world);
+      });
+}
 
 void BM_RollingShutterCameraWrenfold(benchmark::State& state) {
   bench_projection(state, [](auto&&... args) {
@@ -146,5 +149,7 @@ void BM_RollingShutterCameraWrenfold(benchmark::State& state) {
 }
 
 BENCHMARK(BM_RollingShutterCameraSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-// BENCHMARK(BM_ImuIntegrationSymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_RollingShutterCameraSymforceFirstOrder)
+    ->Iterations(1000000)
+    ->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_RollingShutterCameraWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);

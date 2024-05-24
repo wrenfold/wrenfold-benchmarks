@@ -8,7 +8,7 @@ from wrenfold import sym
 from wrenfold.code_generation import (
     OutputArg,)
 from wrenfold.geometry import Quaternion
-from wrenfold.type_annotations import Vector4, Vector3, RealScalar
+from wrenfold.type_annotations import Vector4, Vector3, FloatScalar
 from wrenfold.sympy_conversion import to_sympy, from_sympy
 
 from utils import get_output_dir, generate_wrenfold_function
@@ -48,7 +48,7 @@ def integrate_imu(
     accelerometer_bias: Vector3,
     angular_velocity: Vector3,
     linear_acceleration: Vector3,
-    dt: RealScalar,
+    dt: FloatScalar,
 ):
     """
     We take an incremental navigation state represented by the 9DOF product of:
@@ -118,7 +118,7 @@ def integrate_imu_sffo(
     accelerometer_bias: Vector3,
     angular_velocity: Vector3,
     linear_acceleration: Vector3,
-    dt: RealScalar,
+    dt: FloatScalar,
 ):
     """Convert symforce first-order to wrenfold so we can generate it."""
     configure_symforce()

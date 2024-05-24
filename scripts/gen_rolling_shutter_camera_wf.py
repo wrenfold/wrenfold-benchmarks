@@ -8,7 +8,7 @@ import typing as T
 from wrenfold import sym
 from wrenfold.code_generation import OutputArg, OptimizationParams, CppGenerator, cse_function_description, create_function_description
 from wrenfold.geometry import Quaternion
-from wrenfold.type_annotations import Vector4, Vector3, RealScalar
+from wrenfold.type_annotations import Vector4, Vector3, FloatScalar
 from wrenfold.sympy_conversion import to_sympy, from_sympy
 from wrenfold.type_info import CustomType
 
@@ -23,17 +23,17 @@ class CameraParams:
     """
 
     # Camera matrix.
-    fx: RealScalar
-    fy: RealScalar
-    cx: RealScalar
-    cy: RealScalar
+    fx: FloatScalar
+    fy: FloatScalar
+    cx: FloatScalar
+    cy: FloatScalar
     # Radial coeffs.
-    k1: RealScalar
-    k2: RealScalar
-    k3: RealScalar
+    k1: FloatScalar
+    k2: FloatScalar
+    k3: FloatScalar
     # Tangential coeffs.
-    p1: RealScalar
-    p2: RealScalar
+    p1: FloatScalar
+    p2: FloatScalar
 
 
 def opencv_project(p_cam: Vector3, camera: CameraParams) -> sym.MatrixExpr:
@@ -62,7 +62,7 @@ def integrate_and_project(
     angular_velocity_imu: Vector3,
     world_v_imu: Vector3,
     p_world: Vector3,
-    row_time: RealScalar,
+    row_time: FloatScalar,
     camera: CameraParams,
 ):
     """
