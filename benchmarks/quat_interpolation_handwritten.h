@@ -2,8 +2,10 @@
 #pragma once
 #include <Eigen/Geometry>
 
+namespace handwritten {
+
 // Right-side retraction derivative of q: d[q * exp(w)]/dw evaluated at w = 0
-Eigen::Matrix<double, 4, 3> retract_derivative(const Eigen::Quaterniond& q) {
+inline Eigen::Matrix<double, 4, 3> retract_derivative(const Eigen::Quaterniond& q) {
   const double qx = q.x();
   const double qy = q.y();
   const double qz = q.z();
@@ -20,7 +22,7 @@ Eigen::Matrix<double, 4, 3> retract_derivative(const Eigen::Quaterniond& q) {
 
 // Right-side local coordinates derivative of q: d[log(q-1 * (q + dq))] / dq
 // evaluated at dq = 0
-Eigen::Matrix<double, 3, 4> local_coordinates_derivative(const Eigen::Quaterniond& q) {
+inline Eigen::Matrix<double, 3, 4> local_coordinates_derivative(const Eigen::Quaterniond& q) {
   const double qx = q.x();
   const double qy = q.y();
   const double qz = q.z();
@@ -35,9 +37,9 @@ Eigen::Matrix<double, 3, 4> local_coordinates_derivative(const Eigen::Quaternion
 }
 
 // Normalize a vector, and produce derivatives of the norm and the normalized vector.
-std::tuple<double, Eigen::Vector3d> normalize(const Eigen::Vector3d& v,
-                                              Eigen::Matrix<double, 1, 3>* const angle_D_v,
-                                              Eigen::Matrix<double, 3, 3>* const normalized_D_v) {
+inline std::tuple<double, Eigen::Vector3d> normalize(
+    const Eigen::Vector3d& v, Eigen::Matrix<double, 1, 3>* const angle_D_v,
+    Eigen::Matrix<double, 3, 3>* const normalized_D_v) {
   const double v_norm = v.norm();
   if (angle_D_v) {
     angle_D_v->noalias() = v.transpose() / v_norm;
@@ -52,7 +54,8 @@ std::tuple<double, Eigen::Vector3d> normalize(const Eigen::Vector3d& v,
 // Compute logmap of quaternion (conversion to rodrigues vector).
 // Also output derivative wrt the 4 quaternion elements.
 // Note that we don't handle the small angle case here at all.
-Eigen::Vector3d quaterion_log(const Eigen::Quaterniond& q, Eigen::Matrix<double, 3, 4>* const D_q) {
+inline Eigen::Vector3d quaterion_log(const Eigen::Quaterniond& q,
+                                     Eigen::Matrix<double, 3, 4>* const D_q) {
   // Normalize the vector component.
   Eigen::RowVector3d v_norm_D_vec;
   Eigen::Matrix3d v_normalized_D_vec;
@@ -72,8 +75,8 @@ Eigen::Vector3d quaterion_log(const Eigen::Quaterniond& q, Eigen::Matrix<double,
 
 // Compute exponential map of quaternion (covnersion from rodrigues vector).
 // Also output the derivative of the 4 quaternion elements wrt
-Eigen::Quaterniond quaternion_exp(const Eigen::Vector3d& w,
-                                  Eigen::Matrix<double, 4, 3>* const D_w) {
+inline Eigen::Quaterniond quaternion_exp(const Eigen::Vector3d& w,
+                                         Eigen::Matrix<double, 4, 3>* const D_w) {
   Eigen::RowVector3d angle_D_w;
   Eigen::Matrix3d unit_vec_D_w;
   const auto [angle, unit_vec] = normalize(w, &angle_D_w, &unit_vec_D_w);
@@ -91,9 +94,10 @@ Eigen::Quaterniond quaternion_exp(const Eigen::Vector3d& w,
 
 // Compute log(q0^-1 * q1), and return rodrigues vector and derivatives wrt right-tangent space of
 // q0 and q1.
-Eigen::Vector3d quaternion_local_coords(const Eigen::Quaterniond& q0, const Eigen::Quaterniond& q1,
-                                        Eigen::Matrix<double, 3, 3>* const D0,
-                                        Eigen::Matrix<double, 3, 3>* const D1) {
+inline Eigen::Vector3d quaternion_local_coords(const Eigen::Quaterniond& q0,
+                                               const Eigen::Quaterniond& q1,
+                                               Eigen::Matrix<double, 3, 3>* const D0,
+                                               Eigen::Matrix<double, 3, 3>* const D1) {
   // Compute q0^-1 * q1:
   const Eigen::Quaterniond q_delta = q0.conjugate() * q1;
 
@@ -117,7 +121,7 @@ Eigen::Vector3d quaternion_local_coords(const Eigen::Quaterniond& q0, const Eige
 }
 
 // Hand-written quaternion interpolation with chain rule.
-void quaternion_interpolate_manual(const Eigen::Matrix<double, 4, 1>& q0_xyzw,
+inline void quaternion_interpolate(const Eigen::Matrix<double, 4, 1>& q0_xyzw,
                                    const Eigen::Matrix<double, 4, 1>& q1_xyzw, const double alpha,
                                    Eigen::Matrix<double, 4, 1>& q_out_,
                                    Eigen::Matrix<double, 3, 3>* const D0 = nullptr,
@@ -156,3 +160,5 @@ void quaternion_interpolate_manual(const Eigen::Matrix<double, 4, 1>& q0_xyzw,
   }
   q_out_ = q_out.coeffs();
 }
+
+}  // namespace handwritten
