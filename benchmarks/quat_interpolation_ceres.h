@@ -1,4 +1,4 @@
-// Handwritten implementation of the quaternion interpolation method.
+// Ceres implemnetation of quaternion interpolation.
 #pragma once
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>

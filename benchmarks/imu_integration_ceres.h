@@ -1,4 +1,4 @@
-// Handwritten implementation of the quaternion interpolation method.
+// Ceres implementation of IMU integration.
 #pragma once
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>

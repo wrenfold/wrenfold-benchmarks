@@ -14,7 +14,6 @@
 #include "imu_integration_ceres.h"
 #include "imu_integration_handwritten.h"
 #include "quat_interpolation_handwritten.h"
-
 #include "ceres_utils.h"
 
 struct integration_input {

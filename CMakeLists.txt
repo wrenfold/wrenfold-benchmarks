@@ -18,11 +18,14 @@ add_executable(
   run_benchmarks
   benchmarks/ceres_utils.h
   benchmarks/imu_integration.cc
-  benchmarks/matrix_mul.cc
+  benchmarks/imu_integration_handwritten.h
+  benchmarks/imu_integration_ceres.h
   benchmarks/quat_interpolation_ceres.h
   benchmarks/quat_interpolation_handwritten.h
   benchmarks/quat_interpolation.cc
-  benchmarks/rolling_shutter_camera.cc)
+  benchmarks/rolling_shutter_camera.cc
+  benchmarks/rolling_shutter_camera_ceres.h
+  benchmarks/camera_params_t.h)
 target_link_libraries(run_benchmarks benchmark::benchmark_main eigen symforce
                       Ceres::ceres wrenfold_runtime)
 target_compile_options(run_benchmarks PRIVATE ${WARNING_FLAGS})

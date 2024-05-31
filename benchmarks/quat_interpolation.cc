@@ -19,7 +19,6 @@
 
 #include "quat_interpolation_ceres.h"
 #include "quat_interpolation_handwritten.h"
-
 #include "ceres_utils.h"
 
 std::vector<Eigen::Vector4d> generate_quaternions(const std::size_t num_samples) {
