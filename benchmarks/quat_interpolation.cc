@@ -20,6 +20,8 @@
 #include "quat_interpolation_ceres.h"
 #include "quat_interpolation_handwritten.h"
 
+#include "ceres_utils.h"
+
 std::vector<Eigen::Vector4d> generate_quaternions(const std::size_t num_samples) {
   std::default_random_engine engine{0};
   std::uniform_real_distribution<double> dist{-1.0, 1.0};
@@ -112,15 +114,9 @@ void BM_QuatLocalCoordsSFFOWrenfold(benchmark::State& state) {
   });
 }
 
-template <typename CostFunctor, int NumResiduals, int... Ns, typename... Args>
-auto make_ceres_cost_function(Args&&... args) {
-  return std::make_unique<ceres::AutoDiffCostFunction<CostFunctor, NumResiduals, Ns...>>(
-      new CostFunctor(std::forward<Args>(args)...));
-}
-
 void BM_QuatLocalCoordsCeres(benchmark::State& state) {
   const auto cost_function =
-      make_ceres_cost_function<handwritten_ceres::LocalCoordinatesError, 3, 4, 4>();
+      utils::make_ceres_cost_function<autodiff_ceres::LocalCoordinatesError, 3, 4, 4>();
 
   bench_local_coords(
       state, [&cost_function](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1,
@@ -186,7 +182,7 @@ void BM_QuatInterpolationSFFOWrenfold(benchmark::State& state) {
 
 void BM_QuatInterpolationCeres(benchmark::State& state) {
   const auto cost_function =
-      make_ceres_cost_function<handwritten_ceres::QuatInterpolationError, 4, 4, 4>(0.312);
+      utils::make_ceres_cost_function<autodiff_ceres::QuatInterpolationError, 4, 4, 4>(0.312);
 
   bench_quat_interpolation(
       state, [&cost_function](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1,

@@ -5,9 +5,8 @@
 
 #include <Eigen/Geometry>
 
-namespace handwritten_ceres {
+namespace autodiff_ceres {
 
-// TODO: This isn't really tangent space, since we're differentiating the quaternions?
 struct LocalCoordinatesError {
   template <typename T>
   bool operator()(const T* const q0_data, const T* const q1_data, T* residuals_data) const {
@@ -48,4 +47,4 @@ struct QuatInterpolationError {
   double alpha_;
 };
 
-}  // namespace handwritten_ceres
+}  // namespace autodiff_ceres

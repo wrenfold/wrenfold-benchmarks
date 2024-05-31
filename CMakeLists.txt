@@ -16,6 +16,7 @@ endif()
 
 add_executable(
   run_benchmarks
+  benchmarks/ceres_utils.h
   benchmarks/imu_integration.cc
   benchmarks/matrix_mul.cc
   benchmarks/quat_interpolation_ceres.h
