@@ -7,3 +7,6 @@
 [submodule "dependencies/symforce"]
 	path = dependencies/symforce
 	url = https://github.com/symforce-org/symforce.git
+[submodule "dependencies/ceres-solver"]
+	path = dependencies/ceres-solver
+	url = https://github.com/ceres-solver/ceres-solver.git

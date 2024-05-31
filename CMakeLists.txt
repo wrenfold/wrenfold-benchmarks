@@ -10,15 +10,24 @@ add_subdirectory(dependencies)
 if(MSVC)
   set(WARNING_FLAGS /W4 /WX /wd4244 /wd4702)
 else()
-  set(WARNING_FLAGS -Wall -Wextra -pedantic -Werror -Wno-sign-compare)
+  set(WARNING_FLAGS -Wall -Wextra -pedantic -Werror -Wno-sign-compare
+                    -Wno-unused-parameter)
 endif()
 
 add_executable(
   run_benchmarks
-  benchmarks/quat_interpolation.cc benchmarks/matrix_mul.cc
-  benchmarks/imu_integration.cc benchmarks/rolling_shutter_camera.cc)
+  benchmarks/ceres_utils.h
+  benchmarks/imu_integration.cc
+  benchmarks/imu_integration_handwritten.h
+  benchmarks/imu_integration_ceres.h
+  benchmarks/quat_interpolation_ceres.h
+  benchmarks/quat_interpolation_handwritten.h
+  benchmarks/quat_interpolation.cc
+  benchmarks/rolling_shutter_camera.cc
+  benchmarks/rolling_shutter_camera_ceres.h
+  benchmarks/camera_params_t.h)
 target_link_libraries(run_benchmarks benchmark::benchmark_main eigen symforce
-                      wrenfold_runtime)
+                      Ceres::ceres wrenfold_runtime)
 target_compile_options(run_benchmarks PRIVATE ${WARNING_FLAGS})
 target_compile_features(run_benchmarks PRIVATE cxx_std_17)
 target_include_directories(run_benchmarks PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

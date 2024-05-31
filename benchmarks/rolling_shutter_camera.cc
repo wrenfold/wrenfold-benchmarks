@@ -1,5 +1,4 @@
 // Benchmark constant-velocity rolling shutter camera.
-#include <iostream>
 #include <random>
 #include <vector>
 
@@ -8,21 +7,15 @@
 
 #include <wrenfold/span_eigen.h>
 
-struct camera_params_t {
-  double fx;
-  double fy;
-  double cx;
-  double cy;
-  double k1;
-  double k2;
-  double k3;
-  double p1;
-  double p2;
-};
+#include "benchmarks/quat_interpolation_handwritten.h"
+#include "camera_params_t.h"  //  Must be included before integrate_and_project.h
 
 #include "generated/rolling_shutter_camera/sf/integrate_and_project_chain.h"
 #include "generated/rolling_shutter_camera/sf/integrate_and_project_first_order.h"
 #include "generated/rolling_shutter_camera/wf/integrate_and_project.h"
+
+#include "ceres_utils.h"
+#include "rolling_shutter_camera_ceres.h"
 
 struct projection_input {
   Eigen::Quaterniond world_R_imu;
@@ -148,8 +141,62 @@ void BM_RollingShutterCameraWrenfold(benchmark::State& state) {
   });
 }
 
+void BM_RollingShutterCameraCeres(benchmark::State& state) {
+  double row_time{};
+  camera_params_t intrinsics{};
+  const auto cost_function =
+      utils::make_ceres_cost_function<autodiff_ceres::RollingShutterCameraProjection, 2, 13, 7, 3>(
+          &row_time, &intrinsics);
+
+  bench_projection(
+      state,
+      [&](const Eigen::Quaterniond& world_R_imu_xyzw,
+          const Eigen::Matrix<double, 3, 1>& world_t_imu, const Eigen::Quaterniond& imu_R_cam_xyzw,
+          const Eigen::Matrix<double, 3, 1>& imu_t_cam,
+          const Eigen::Matrix<double, 3, 1>& angular_velocity_imu,
+          const Eigen::Matrix<double, 3, 1>& world_v_imu,
+          const Eigen::Matrix<double, 3, 1>& p_world, const double row_time_in,
+          const camera_params_t& camera, Eigen::Matrix<double, 2, 1>& p_image,
+          Eigen::Matrix<double, 2, 3>& D_world_R_imu, Eigen::Matrix<double, 2, 3>& D_world_t_imu,
+          Eigen::Matrix<double, 2, 3>& D_imu_R_cam, Eigen::Matrix<double, 2, 3>& D_imu_t_cam,
+          Eigen::Matrix<double, 2, 3>& D_angular_velocity_imu,
+          Eigen::Matrix<double, 2, 3>& D_world_v_imu, Eigen::Matrix<double, 2, 3>& D_p_world) {
+        // Update variables shared with the cost function above via pointer:
+        row_time = row_time_in;
+        intrinsics = camera;
+
+        const auto camera_state = (Eigen::Matrix<double, 13, 1>() << world_R_imu_xyzw.coeffs(),
+                                   world_t_imu, angular_velocity_imu, world_v_imu)
+                                      .finished();
+        const auto extrinsics =
+            (Eigen::Matrix<double, 7, 1>() << imu_R_cam_xyzw.coeffs(), imu_t_cam).finished();
+
+        const std::array<const double*, 3> parameters = {camera_state.data(), extrinsics.data(),
+                                                         p_world.data()};
+
+        Eigen::Matrix<double, 2, 13> p_image_D_camera_state = Eigen::Matrix<double, 2, 13>::Zero();
+        Eigen::Matrix<double, 2, 7> p_image_D_extrinsics = Eigen::Matrix<double, 2, 7>::Zero();
+        std::array<double*, 3> jacobians = {p_image_D_camera_state.data(),
+                                            p_image_D_extrinsics.data(), D_p_world.data()};
+        cost_function->Evaluate(parameters.data(), p_image.data(), jacobians.data());
+
+        // Transform jacobians
+        const auto D_imu_rotation = handwritten::retract_derivative(world_R_imu_xyzw);
+        const auto D_extrinsic_rotation = handwritten::retract_derivative(imu_R_cam_xyzw);
+
+        D_world_R_imu = p_image_D_camera_state.leftCols<4>() * D_imu_rotation;
+        D_world_t_imu = p_image_D_camera_state.middleCols<3>(4);
+        D_angular_velocity_imu = p_image_D_camera_state.middleCols<3>(7);
+        D_world_v_imu = p_image_D_camera_state.rightCols<3>();
+
+        D_imu_R_cam = p_image_D_extrinsics.leftCols<4>() * D_extrinsic_rotation;
+        D_imu_t_cam = p_image_D_extrinsics.rightCols<3>();
+      });
+}
+
 BENCHMARK(BM_RollingShutterCameraSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_RollingShutterCameraSymforceFirstOrder)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_RollingShutterCameraWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_RollingShutterCameraCeres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
