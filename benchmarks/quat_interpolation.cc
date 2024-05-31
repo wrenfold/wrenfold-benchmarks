@@ -1,5 +1,4 @@
 // Benchmark quaternion interpolation method.
-#include <iostream>
 #include <random>
 #include <vector>
 
@@ -18,6 +17,7 @@
 #include "generated/quat_interpolation/wf/quat_local_coordinates.h"
 #include "generated/quat_interpolation/wf/quat_local_coordinates_sffo.h"
 
+#include "quat_interpolation_ceres.h"
 #include "quat_interpolation_handwritten.h"
 
 std::vector<Eigen::Vector4d> generate_quaternions(const std::size_t num_samples) {
@@ -112,6 +112,31 @@ void BM_QuatLocalCoordsSFFOWrenfold(benchmark::State& state) {
   });
 }
 
+template <typename CostFunctor, int NumResiduals, int... Ns, typename... Args>
+auto make_ceres_cost_function(Args&&... args) {
+  return std::make_unique<ceres::AutoDiffCostFunction<CostFunctor, NumResiduals, Ns...>>(
+      new CostFunctor(std::forward<Args>(args)...));
+}
+
+void BM_QuatLocalCoordsCeres(benchmark::State& state) {
+  const auto cost_function =
+      make_ceres_cost_function<handwritten_ceres::LocalCoordinatesError, 3, 4, 4>();
+
+  bench_local_coords(
+      state, [&cost_function](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1,
+                              Eigen::Vector3d& v_out, Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
+        const std::array<const double*, 2> parameters = {q0.data(), q1.data()};
+
+        Eigen::Matrix<double, 3, 4> D0_quat, D1_quat;
+        std::array<double*, 2> jacobians = {D0_quat.data(), D1_quat.data()};
+        cost_function->Evaluate(parameters.data(), v_out.data(), jacobians.data());
+
+        // Chain rule to get right-tangent:
+        D0.noalias() = D0_quat * handwritten::retract_derivative(Eigen::Quaterniond{q0});
+        D1.noalias() = D1_quat * handwritten::retract_derivative(Eigen::Quaterniond{q1});
+      });
+}
+
 void BM_QuatInterpolationHandwritten(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
@@ -159,6 +184,27 @@ void BM_QuatInterpolationSFFOWrenfold(benchmark::State& state) {
       });
 }
 
+void BM_QuatInterpolationCeres(benchmark::State& state) {
+  const auto cost_function =
+      make_ceres_cost_function<handwritten_ceres::QuatInterpolationError, 4, 4, 4>(0.312);
+
+  bench_quat_interpolation(
+      state, [&cost_function](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1,
+                              Eigen::Vector4d& q_out, Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
+        const std::array<const double*, 2> parameters = {q0.data(), q1.data()};
+
+        Eigen::Matrix<double, 4, 4> D0_quat, D1_quat;
+        std::array<double*, 2> jacobians = {D0_quat.data(), D1_quat.data()};
+        cost_function->Evaluate(parameters.data(), q_out.data(), jacobians.data());
+
+        // Chain rule to get right-tangent:
+        D0.noalias() = handwritten::local_coordinates_derivative(Eigen::Quaterniond{q_out}) *
+                       D0_quat * handwritten::retract_derivative(Eigen::Quaterniond{q0});
+        D1.noalias() = handwritten::local_coordinates_derivative(Eigen::Quaterniond{q_out}) *
+                       D1_quat * handwritten::retract_derivative(Eigen::Quaterniond{q1});
+      });
+}
+
 BENCHMARK(BM_QuatInterpolationHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolationSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolationSymforceFirstOrder)
@@ -169,9 +215,11 @@ BENCHMARK(BM_QuatInterpolationNoConditionalWrenfold)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolationSFFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatInterpolationCeres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 
 BENCHMARK(BM_QuatLocalCoordsHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatLocalCoordsSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatLocalCoordsSymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatLocalCoordsWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatLocalCoordsSFFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatLocalCoordsCeres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
