@@ -8,8 +8,8 @@
 namespace gen {
 
 template <typename Scalar, typename T0, typename T1, typename T3, typename T4, typename T5>
-void quat_interpolation_sffo(const T0& q0_xyzw, const T1& q1_xyzw, const Scalar alpha, T3&& q_out, T4&& d0, T5&& d1)
-{
+void quat_interpolation_sffo(const T0& q0_xyzw, const T1& q1_xyzw, const Scalar alpha, T3&& q_out,
+                             T4&& d0, T5&& d1) {
   auto _q0_xyzw = wf::make_input_span<4, 1>(q0_xyzw);
   auto _q1_xyzw = wf::make_input_span<4, 1>(q1_xyzw);
   auto _q_out = wf::make_output_span<4, 1>(q_out);
@@ -25,872 +25,328 @@ void quat_interpolation_sffo(const T0& q0_xyzw, const T1& q1_xyzw, const Scalar 
   // multiply: 476
   // negate: 24
   // total: 815
-  
+
+  const Scalar v00014 = _q1_xyzw(3, 0);
+  const Scalar v00013 = _q0_xyzw(3, 0);
+  const Scalar v00011 = _q1_xyzw(2, 0);
+  const Scalar v00001 = _q0_xyzw(2, 0);
   const Scalar v00009 = _q1_xyzw(1, 0);
   const Scalar v00008 = _q0_xyzw(1, 0);
   const Scalar v00006 = _q1_xyzw(0, 0);
   const Scalar v00005 = _q0_xyzw(0, 0);
-  const Scalar v00010 = v00008 * v00009;
-  const Scalar v00007 = v00005 * v00006;
-  const Scalar v00011 = _q1_xyzw(2, 0);
-  const Scalar v00001 = _q0_xyzw(2, 0);
-  const Scalar v08524 = v00007 + v00010;
-  const Scalar v00012 = v00001 * v00011;
-  const Scalar v00014 = _q1_xyzw(3, 0);
-  const Scalar v00013 = _q0_xyzw(3, 0);
-  const Scalar v08525 = v00012 + v08524;
-  const Scalar v00015 = v00013 * v00014;
-  const Scalar v08526 = v00015 + v08525;
-  const std::int64_t v00017 = (static_cast<Scalar>(0) < v08526) - (v08526 < static_cast<Scalar>(0));
-  const bool v00019 = v00017 < 0;
+  const Scalar v00016 = v00005 * v00006 + v00008 * v00009 + v00001 * v00011 + v00013 * v00014;
+  const std::int64_t v00017 = (static_cast<Scalar>(0) < v00016) - (v00016 < static_cast<Scalar>(0));
   std::int64_t v00020;
-  if (v00019) {
+  if (v00017 < 0) {
     v00020 = v00017;
   } else {
     v00020 = 0;
   }
-  const Scalar v00030 = std::abs(v08526);
-  const bool v00032 = v00030 < static_cast<Scalar>(0.9999999999999999);
+  const Scalar v00030 = std::abs(v00016);
   Scalar v00033;
-  if (v00032) {
+  if (v00030 < static_cast<Scalar>(0.9999999999999999)) {
     v00033 = v00030;
   } else {
     v00033 = static_cast<Scalar>(0.9999999999999999);
   }
-  const Scalar v08662 = -v00030;
-  const Scalar v00099 = static_cast<Scalar>(0.9999999999999999) + v08662;
+  const Scalar v00099 = static_cast<Scalar>(0.9999999999999999) + -v00030;
   const Scalar v00090 = static_cast<Scalar>(0.5);
-  const bool v00101 = static_cast<Scalar>(0) < v00099;
   Scalar v00104;
-  if (v00101) {
+  if (static_cast<Scalar>(0) < v00099) {
     v00104 = static_cast<Scalar>(1);
   } else {
-    const bool v00102 = v00099 < static_cast<Scalar>(0);
-    if (v00102) {
+    if (v00099 < static_cast<Scalar>(0)) {
       v00104 = static_cast<Scalar>(-1);
     } else {
       v00104 = v00090;
     }
   }
-  const Scalar v00384 = v00008 * v00011;
-  const Scalar v00383 = v00005 * v00014;
-  const Scalar v00275 = v00001 * v00014;
-  const Scalar v00274 = v00005 * v00009;
-  const Scalar v08511 = v00383 + v00384;
-  const Scalar v00049 = v00006 * v00013;
-  const Scalar v00048 = v00001 * v00009;
-  const Scalar v08510 = v00274 + v00275;
-  const Scalar v00042 = v00011 * v00013;
-  const Scalar v00041 = v00006 * v00008;
-  const Scalar v00118 = v00001 * v00006;
-  const Scalar v00117 = v00008 * v00014;
-  const Scalar v08658 = -v08511;
-  const Scalar v08508 = v00048 + v00049;
-  const Scalar v08655 = -v08510;
-  const Scalar v08507 = v00041 + v00042;
-  const Scalar v08509 = v00117 + v00118;
-  const Scalar v00027 = v00009 * v00013;
-  const Scalar v00026 = v00005 * v00011;
-  const std::int64_t v00021 = 2 * v00020;
-  const Scalar v00814 = v08508 + v08658;
-  const Scalar v00809 = v08507 + v08655;
-  const Scalar v08653 = -v08509;
-  const Scalar v08506 = v00026 + v00027;
-  const std::int64_t v00022 = 1 + v00021;
-  const Scalar v08667 = -v00033;
-  const Scalar v01775 = v00814 * v00814;
-  const Scalar v01774 = v00809 * v00809;
-  const Scalar v00804 = v08506 + v08653;
-  const Scalar v00038 = static_cast<Scalar>(v00022);
+  const Scalar v08740 = v00008 * v00014 + v00001 * v00006;
+  const Scalar v08742 = v00005 * v00014 + v00008 * v00011;
+  const Scalar v08741 = v00005 * v00009 + v00001 * v00014;
   const Scalar v00002 = alpha;
-  const Scalar v00034 = v00033 * v08667;
-  const Scalar v08529 = v01774 + v01775;
-  const Scalar v01776 = v00804 * v00804;
-  const Scalar v02646 = v00002 * v00038;
+  const Scalar v08737 = v00005 * v00011 + v00009 * v00013;
+  const Scalar v08739 = v00001 * v00009 + v00006 * v00013;
+  const Scalar v08738 = v00006 * v00008 + v00011 * v00013;
+  const Scalar v02646 = v00002 * static_cast<Scalar>(1 + 2 * v00020);
   const Scalar v00044 = std::acos(v00033);
-  const Scalar v00036 = v00034 + static_cast<Scalar>(1);
-  const Scalar v08530 = v01776 + v08529;
-  const Scalar v02649 = v00044 * v02646;
+  const Scalar v00036 = v00033 * -v00033 + static_cast<Scalar>(1);
+  const Scalar v00804 = v08737 + -v08740;
+  const Scalar v00814 = v08739 + -v08742;
+  const Scalar v00809 = v08738 + -v08741;
+  const Scalar v02650 = v00044 * v02646;
   const Scalar v00037 = static_cast<Scalar>(1) / v00036;
-  const Scalar v08499 = v02649 * v08530;
-  const Scalar v03244 = v00037 * v02649;
+  const Scalar v03251 = v00037 * v02650;
+  const Scalar v01777 = v00809 * v00809 + v00814 * v00814 + v00804 * v00804;
   const Scalar v00056 = std::sqrt(v00036);
-  const Scalar v08500 = v03244 * v08499;
-  const Scalar v08497 = v00056 * v00056;
-  const Scalar v00820 = static_cast<Scalar>(2.4999999999999998e-33) + v08500;
-  const Scalar v00122 = v00036 * v00036;
-  const Scalar v07710 = v00005 * v00804;
+  const Scalar v00820 = static_cast<Scalar>(2.4999999999999998e-33) + v01777 * v02650 * v03251;
+  const Scalar v00829 = v00013 * v00804;
+  const Scalar v00828 = v00001 * v00814;
+  const Scalar v07857 = v00005 * v00804;
   const Scalar v00835 = v00013 * v00809;
   const Scalar v00823 = v00013 * v00814;
   const Scalar v00822 = v00008 * v00809;
-  const Scalar v00829 = v00013 * v00804;
-  const Scalar v00828 = v00001 * v00814;
-  const Scalar v08498 = v00056 * v08497;
-  const Scalar v00840 = v00008 * v00804;
-  const Scalar v00839 = v00005 * v00814;
   const Scalar v00054 = std::sqrt(v00820);
-  const Scalar v00105 = static_cast<Scalar>(v00017);
-  const Scalar v00123 = static_cast<Scalar>(1) / v00122;
+  const Scalar v00123 = static_cast<Scalar>(1) / (v00036 * v00036);
   const Scalar v00087 = static_cast<Scalar>(-0.5);
-  const Scalar v08649 = -v00008;
-  const Scalar v08505 = v00835 + v07710;
-  const Scalar v08647 = -v00001;
-  const Scalar v08503 = v00822 + v00823;
-  const Scalar v08504 = v00828 + v00829;
-  const Scalar v08648 = -v00005;
-  const Scalar v00097 = static_cast<Scalar>(1) / v08498;
-  const Scalar v08527 = v00839 + v00840;
-  const Scalar v00841 = v00001 * v00809;
-  const Scalar v00057 = static_cast<Scalar>(1) / v00056;
+  const Scalar v08735 = v00828 + v00829;
+  const Scalar v08759 = -v00005;
+  const Scalar v00097 = static_cast<Scalar>(1) / (v00056 * v00056 * v00056);
+  const Scalar v08760 = -v00008;
+  const Scalar v08736 = v00835 + v07857;
+  const Scalar v08758 = -v00001;
+  const Scalar v08734 = v00822 + v00823;
   const Scalar v00058 = std::sin(v00054);
   const Scalar v00055 = static_cast<Scalar>(1) / v00054;
-  const Scalar v08652 = -v08508;
-  const Scalar v08651 = -v08507;
-  const Scalar v08650 = -v08506;
-  const Scalar v02729 = v00104 * v00105;
-  const Scalar v04301 = v00033 * v00044;
-  const Scalar v08663 = -v00044;
-  const Scalar v07816 = v00033 * v00123;
-  const Scalar v01262 = v00090 * v08511;
-  const Scalar v01258 = v00087 * v08508;
-  const Scalar v01062 = v00090 * v08506;
-  const Scalar v01058 = v00087 * v08509;
-  const Scalar v08501 = v00054 * v00054;
-  const Scalar v00910 = v00090 * v08507;
-  const Scalar v00906 = v00087 * v08510;
-  const Scalar v00919 = v00090 * v08509;
-  const Scalar v00915 = v00087 * v08506;
-  const Scalar v00833 = v00814 * v08649;
-  const Scalar v08657 = -v08505;
-  const Scalar v07737 = v00008 * v00814;
-  const Scalar v00821 = v00804 * v08647;
-  const Scalar v08660 = -v08503;
-  const Scalar v07675 = v00001 * v00804;
-  const Scalar v00858 = v00090 * v08508;
-  const Scalar v00854 = v00087 * v08511;
-  const Scalar v01108 = v00090 * v08510;
-  const Scalar v01104 = v00087 * v08507;
-  const Scalar v08661 = -v08504;
-  const Scalar v07711 = v00005 * v00809;
-  const Scalar v00827 = v00809 * v08648;
-  const Scalar v06015 = v00033 * v00097;
-  const Scalar v08528 = v00841 + v08527;
-  const Scalar v02812 = v00057 * v02649;
+  const Scalar v00841 = v00001 * v00809;
+  const Scalar v00840 = v00008 * v00804;
+  const Scalar v00839 = v00005 * v00814;
+  const Scalar v04317 = v00033 * v00044;
+  const Scalar v08756 = -v00044;
+  const Scalar v07858 = v00005 * v00809;
+  const Scalar v07884 = v00008 * v00814;
+  const Scalar v07822 = v00001 * v00804;
+  const Scalar v02837 = (static_cast<Scalar>(1) / v00056) * v02650;
   const Scalar v02702 = v00055 * v00058;
-  const Scalar v01222 = v08511 + v08652;
-  const Scalar v01068 = v08510 + v08651;
-  const Scalar v00870 = v08509 + v08650;
-  const Scalar v02736 = v02646 * v02729;
-  const Scalar v08669 = -v00097;
-  const Scalar v02343 = v00123 * v04301;
-  const Scalar v02350 = v07816 * v08663;
-  const Scalar v01263 = v01258 + v01262;
-  const Scalar v01063 = v01058 + v01062;
-  const Scalar v00145 = static_cast<Scalar>(1) / v00820;
+  const Scalar v00842 = v00839 + v00840 + v00841;
+  const Scalar v02742 = v02646 * (v00104 * static_cast<Scalar>(v00017));
+  const Scalar v01263 = v00087 * v08739 + v00090 * v08742;
+  const Scalar v01063 = v00087 * v08740 + v00090 * v08737;
   const Scalar v00060 = std::cos(v00054);
-  const Scalar v08502 = v00054 * v08501;
-  const Scalar v00911 = v00906 + v00910;
-  const Scalar v00920 = v00915 + v00919;
-  const Scalar v07381 = v00097 * v04301;
-  const Scalar v00836 = v00833 + v08505;
-  const Scalar v02131 = v07737 + v08657;
-  const Scalar v00824 = v00821 + v08503;
-  const Scalar v01840 = v07675 + v08660;
-  const Scalar v00859 = v00854 + v00858;
-  const Scalar v01109 = v01104 + v01108;
-  const Scalar v01906 = v07711 + v08661;
-  const Scalar v00830 = v00827 + v08504;
-  const Scalar v02367 = v06015 * v08663;
-  const Scalar v08670 = -v08528;
-  const Scalar v03947 = v02702 * v02812;
-  const Scalar v02441 = v00814 + v01222;
-  const Scalar v02404 = v00809 + v01068;
-  const Scalar v02339 = v00804 + v00870;
-  const Scalar v03357 = v02736 * v08530;
-  const Scalar v02344 = v02343 + v08669;
-  const Scalar v02351 = v00097 + v02350;
-  const Scalar v02072 = v00008 * v01263;
-  const Scalar v02071 = v00005 * v01063;
-  const Scalar v03487 = v00060 * v00145;
-  const Scalar v03259 = v00058 * v02649;
-  const Scalar v00143 = static_cast<Scalar>(1) / v08502;
-  const Scalar v01005 = v00013 * v00911;
-  const Scalar v01003 = v00920 * v08648;
-  const Scalar v01920 = v00836 * v07381;
-  const Scalar v01915 = v00037 * v02131;
-  const Scalar v08664 = -v02649;
-  const Scalar v01812 = v00824 * v07381;
-  const Scalar v01807 = v00037 * v01840;
-  const Scalar v01269 = v00013 * v01063;
-  const Scalar v01267 = v01263 * v08647;
-  const Scalar v01196 = v00013 * v00859;
-  const Scalar v01193 = v01109 * v08649;
-  const Scalar v01889 = v00037 * v01906;
-  const Scalar v01884 = v00830 * v07381;
-  const Scalar v02368 = v00037 + v02367;
-  const Scalar v07763 = v00013 * v00060;
-  const Scalar v00843 = v03947 * v08670;
-  const Scalar v05940 = v00008 * v00060;
-  const Scalar v00831 = v00830 * v03947;
-  const Scalar v02133 = v02131 * v03947;
-  const Scalar v02132 = v00060 * v08647;
-  const Scalar v01842 = v01840 * v03947;
-  const Scalar v01841 = v00060 * v08648;
-  const Scalar v01908 = v01906 * v03947;
-  const Scalar v01907 = v00060 * v08649;
-  const Scalar v05879 = v00001 * v00060;
-  const Scalar v00837 = v00836 * v03947;
-  const Scalar v05909 = v00005 * v00060;
-  const Scalar v00825 = v00824 * v03947;
-  const Scalar v02442 = v00804 * v02441;
-  const Scalar v02405 = v00814 * v02404;
-  const Scalar v02340 = v00809 * v02339;
-  const Scalar v04975 = v02344 * v03357;
-  const Scalar v04477 = v00090 * v03244;
-  const Scalar v04982 = v02351 * v03357;
-  const Scalar v04466 = v00087 * v03244;
-  const Scalar v08520 = v02071 + v02072;
-  const Scalar v03510 = v02649 * v03487;
-  const Scalar v04521 = v00143 * v03259;
+  const Scalar v00911 = v00087 * v08741 + v00090 * v08738;
+  const Scalar v00920 = v00087 * v08737 + v00090 * v08740;
+  const Scalar v00859 = v00087 * v08742 + v00090 * v08739;
+  const Scalar v01109 = v00087 * v08738 + v00090 * v08741;
+  const Scalar v01906 = v07858 + -v08735;
+  const Scalar v07521 = v00097 * v04317;
+  const Scalar v00830 = v00809 * v08759 + v08735;
+  const Scalar v00836 = v00814 * v08760 + v08736;
+  const Scalar v02131 = v07884 + -v08736;
+  const Scalar v00824 = v00804 * v08758 + v08734;
+  const Scalar v01840 = v07822 + -v08734;
+  const Scalar v03960 = v02702 * v02837;
+  const Scalar v08774 = -v00842;
+  const Scalar v03364 = v01777 * v02742;
+  const Scalar v00143 = static_cast<Scalar>(1) / (v00054 * v00054 * v00054);
+  const Scalar v08757 = -v02650;
+  const Scalar v06001 = v00008 * v00060;
+  const Scalar v05970 = v00005 * v00060;
+  const Scalar v05940 = v00001 * v00060;
+  const Scalar v02442 = v00804 * (v00814 + (v08742 + -v08739));
+  const Scalar v02405 = v00814 * (v00809 + (v08741 + -v08738));
+  const Scalar v02340 = v00809 * (v00804 + (v08740 + -v08737));
+  const Scalar v05012 = (v00123 * v04317 + -v00097) * v03364;
+  const Scalar v04503 = v00090 * v03251;
+  const Scalar v05597 = (v00097 + (v00033 * v00123) * v08756) * v03364;
+  const Scalar v05366 = v00087 * v03251;
+  const Scalar v08751 = v00005 * v01063 + v00008 * v01263;
+  const Scalar v03585 = v02650 * (v00060 * (static_cast<Scalar>(1) / v00820));
+  const Scalar v05396 = v00143 * (v00058 * v02650);
+  const Scalar v08748 = v00920 * v08759 + v00013 * v00911;
+  const Scalar v01322 = v00001 * v01063;
+  const Scalar v08750 = v01263 * v08758 + v00013 * v01063;
+  const Scalar v08749 = v01109 * v08760 + v00013 * v00859;
   const Scalar v01114 = v00008 * v00859;
   const Scalar v01040 = v00005 * v00911;
-  const Scalar v01322 = v00001 * v01063;
-  const Scalar v08517 = v01003 + v01005;
-  const Scalar v01921 = v01915 + v01920;
-  const Scalar v04028 = v00001 * v08664;
-  const Scalar v01813 = v01807 + v01812;
-  const Scalar v04135 = v00005 * v08664;
-  const Scalar v08519 = v01267 + v01269;
-  const Scalar v08518 = v01193 + v01196;
-  const Scalar v01890 = v01884 + v01889;
-  const Scalar v04211 = v00008 * v08664;
-  const Scalar v04532 = v02368 * v08528;
-  const Scalar v04293 = v00013 * v08664;
-  const Scalar v00844 = v00843 + v07763;
-  const Scalar v00832 = v00831 + v05940;
-  const Scalar v02134 = v02132 + v02133;
-  const Scalar v01843 = v01841 + v01842;
-  const Scalar v01909 = v01907 + v01908;
-  const Scalar v00838 = v00837 + v05879;
-  const Scalar v00826 = v00825 + v05909;
+  const Scalar v01890 = v00830 * v07521 + v00037 * v01906;
+  const Scalar v04227 = v00008 * v08757;
+  const Scalar v04557 = v00842 * (v00037 + (v00033 * v00097) * v08756);
+  const Scalar v04310 = v00013 * v08757;
+  const Scalar v01921 = v00037 * v02131 + v00836 * v07521;
+  const Scalar v05199 = v00001 * v08757;
+  const Scalar v01813 = v00037 * v01840 + v00824 * v07521;
+  const Scalar v04150 = v00005 * v08757;
+  const Scalar v01843 = v00060 * v08759 + v01840 * v03960;
+  const Scalar v02134 = v00060 * v08758 + v02131 * v03960;
+  const Scalar v00844 = v03960 * v08774 + v00013 * v00060;
+  const Scalar v00832 = v00830 * v03960 + v06001;
+  const Scalar v00826 = v00824 * v03960 + v05970;
+  const Scalar v01909 = v00060 * v08760 + v01906 * v03960;
+  const Scalar v00838 = v00836 * v03960 + v05940;
   if (static_cast<bool>(_d0)) {
-    const Scalar v08665 = -v08526;
-    const Scalar v02034 = v00809 * v08665;
-    const Scalar v01941 = v00804 * v08665;
-    const Scalar v01788 = v00814 * v08665;
-    const Scalar v02443 = v02034 + v02442;
-    const Scalar v07762 = v00013 * v08526;
-    const Scalar v08654 = -v01063;
-    const Scalar v07896 = v00090 * v00804;
-    const Scalar v05939 = v00008 * v08526;
-    const Scalar v02406 = v01941 + v02405;
-    const Scalar v05908 = v00005 * v08526;
-    const Scalar v08522 = v07710 + v07737;
-    const Scalar v07792 = v08526 * v08647;
-    const Scalar v02341 = v01788 + v02340;
-    const Scalar v08514 = v00828 + v07711;
-    const Scalar v07795 = v08526 * v08649;
-    const Scalar v08656 = -v00911;
-    const Scalar v01815 = v00090 * v00809;
-    const Scalar v08512 = v00822 + v07675;
-    const Scalar v07794 = v08526 * v08648;
-    const Scalar v05878 = v00001 * v08526;
-    const Scalar v08515 = v00829 + v07711;
-    const Scalar v08513 = v00823 + v07675;
-    const Scalar v02445 = v00911 * v04975;
-    const Scalar v02444 = v02443 * v04477;
-    const Scalar v02449 = v00911 * v04982;
-    const Scalar v02448 = v02443 * v04466;
-    const Scalar v02111 = v00841 + v07762;
-    const Scalar v02107 = v07896 + v08654;
+    const Scalar v08761 = -v00016;
+    const Scalar v02443 = v00809 * v08761 + v02442;
+    const Scalar v02406 = v00804 * v08761 + v02405;
+    const Scalar v02341 = v00814 * v08761 + v02340;
     const Scalar v01981 = v00090 * v00814;
-    const Scalar v08547 = v05939 + v07711;
-    const Scalar v02408 = v01063 * v04975;
-    const Scalar v02407 = v02406 * v04477;
-    const Scalar v02412 = v01063 * v04982;
-    const Scalar v02411 = v02406 * v04466;
-    const Scalar v08543 = v05908 + v07675;
-    const Scalar v01959 = v07792 + v08522;
-    const Scalar v02347 = v00859 * v04975;
-    const Scalar v02346 = v02341 * v04477;
-    const Scalar v02354 = v00859 * v04982;
-    const Scalar v02353 = v02341 * v04466;
-    const Scalar v01925 = v07795 + v08514;
-    const Scalar v01820 = v00839 + v07762;
-    const Scalar v01816 = v01815 + v08656;
-    const Scalar v02089 = v07794 + v08512;
-    const Scalar v02000 = v00840 + v07762;
-    const Scalar v01962 = v01109 + v01815;
-    const Scalar v08659 = -v00859;
-    const Scalar v01004 = v00087 * v05878;
-    const Scalar v08516 = v00835 + v07737;
-    const Scalar v05910 = v00005 * v00090;
-    const Scalar v01978 = v07795 + v08515;
-    const Scalar v01848 = v07794 + v08513;
-    const Scalar v02446 = v02444 + v02445;
-    const Scalar v02450 = v02448 + v02449;
-    const Scalar v02112 = v00087 * v02111;
-    const Scalar v02108 = v00008 * v02107;
+    const Scalar v07941 = v00016 * v08759;
+    const Scalar v01004 = v00087 * (v00001 * v00016);
+    const Scalar v07909 = v00013 * v00016;
+    const Scalar v08094 = v00090 * v00804;
+    const Scalar v01815 = v00090 * v00809;
+    const Scalar v07942 = v00016 * v08760;
+    const Scalar v02446 = v02443 * v04503 + v00911 * v05012;
     const Scalar v02092 = v01263 + v01981;
-    const Scalar v08548 = v08504 + v08547;
-    const Scalar v02409 = v02407 + v02408;
-    const Scalar v02413 = v02411 + v02412;
-    const Scalar v08544 = v08503 + v08543;
-    const Scalar v01960 = v00087 * v01959;
-    const Scalar v02348 = v02346 + v02347;
-    const Scalar v02355 = v02353 + v02354;
-    const Scalar v01926 = v00087 * v01925;
-    const Scalar v01823 = v00920 + v07896;
-    const Scalar v01821 = v00087 * v01820;
-    const Scalar v01817 = v00001 * v01816;
-    const Scalar v02090 = v00087 * v02089;
-    const Scalar v02001 = v00087 * v02000;
-    const Scalar v01997 = v00001 * v01962;
-    const Scalar v01982 = v01981 + v08659;
-    const Scalar v01019 = v07737 + v08505;
-    const Scalar v02073 = v01004 + v08520;
-    const Scalar v02069 = v00087 * v08516;
-    const Scalar v01296 = v00804 * v05910;
-    const Scalar v01979 = v00087 * v01978;
-    const Scalar v01139 = v01109 * v08648;
-    const Scalar v01849 = v00087 * v01848;
-    const Scalar v00972 = v00920 * v08647;
-    const Scalar v04649 = v00911 * v02736;
-    const Scalar v02453 = v02446 * v03510;
-    const Scalar v02452 = v02450 * v04521;
-    const Scalar v08567 = v02108 + v02112;
-    const Scalar v02115 = v00005 * v02092;
-    const Scalar v02054 = v00087 * v08548;
-    const Scalar v04707 = v01063 * v02736;
-    const Scalar v02416 = v02409 * v03510;
-    const Scalar v02415 = v02413 * v04521;
-    const Scalar v02022 = v00087 * v08544;
-    const Scalar v08553 = v01114 + v01960;
-    const Scalar v01963 = v00013 * v01962;
-    const Scalar v04610 = v00859 * v02736;
-    const Scalar v02363 = v02348 * v03510;
-    const Scalar v02362 = v02355 * v04521;
-    const Scalar v08565 = v01040 + v01926;
-    const Scalar v01929 = v00013 * v01823;
-    const Scalar v08563 = v01817 + v01821;
-    const Scalar v01824 = v00008 * v01823;
-    const Scalar v08555 = v01322 + v02090;
-    const Scalar v02093 = v00013 * v02092;
-    const Scalar v08559 = v01997 + v02001;
-    const Scalar v02005 = v00005 * v01982;
-    const Scalar v02384 = v00087 * v01019;
-    const Scalar v01006 = v01004 + v08517;
-    const Scalar v08666 = -v02073;
-    const Scalar v08551 = v01296 + v02069;
-    const Scalar v08557 = v01139 + v01979;
-    const Scalar v01983 = v00001 * v01982;
-    const Scalar v08561 = v00972 + v01849;
-    const Scalar v01853 = v00008 * v01816;
-    const Scalar v02118 = v01921 * v04649;
-    const Scalar v02117 = v02446 * v04028;
-    const Scalar v02454 = v02452 + v02453;
-    const Scalar v08568 = v02115 + v08567;
-    const Scalar v02057 = v01813 * v04649;
-    const Scalar v02056 = v02446 * v04135;
-    const Scalar v02055 = v02054 + v08519;
-    const Scalar v02025 = v01921 * v04707;
-    const Scalar v02024 = v02409 * v04028;
-    const Scalar v02417 = v02415 + v02416;
-    const Scalar v02023 = v02022 + v08518;
-    const Scalar v01966 = v01813 * v04707;
-    const Scalar v01965 = v02409 * v04135;
-    const Scalar v08554 = v01963 + v08553;
-    const Scalar v01932 = v01921 * v04610;
-    const Scalar v01931 = v02348 * v04028;
-    const Scalar v02364 = v02362 + v02363;
-    const Scalar v08566 = v01929 + v08565;
-    const Scalar v01827 = v01813 * v04610;
-    const Scalar v01826 = v02348 * v04135;
-    const Scalar v08564 = v01824 + v08563;
-    const Scalar v02096 = v01890 * v04649;
-    const Scalar v02095 = v02446 * v04211;
-    const Scalar v08556 = v02093 + v08555;
-    const Scalar v02008 = v01890 * v04707;
-    const Scalar v02007 = v02409 * v04211;
-    const Scalar v08560 = v02005 + v08559;
-    const Scalar v01892 = v01890 * v04610;
-    const Scalar v01891 = v02348 * v04211;
-    const Scalar v02385 = v01006 + v02384;
-    const Scalar v02077 = v04532 * v04649;
-    const Scalar v02076 = v02446 * v04293;
-    const Scalar v08552 = v08551 + v08666;
-    const Scalar v01986 = v04532 * v04707;
-    const Scalar v01985 = v02409 * v04293;
-    const Scalar v08558 = v01983 + v08557;
-    const Scalar v01867 = v04532 * v04610;
-    const Scalar v01866 = v02348 * v04293;
-    const Scalar v08562 = v01853 + v08561;
-    const Scalar v02119 = v02117 + v02118;
-    const Scalar v06043 = v00060 * v00090;
-    const Scalar v02470 = v00836 * v02454;
-    const Scalar v02121 = v02702 * v08568;
-    const Scalar v02058 = v02056 + v02057;
-    const Scalar v02455 = v00824 * v02454;
-    const Scalar v02060 = v02055 * v02702;
-    const Scalar v02026 = v02024 + v02025;
-    const Scalar v02433 = v00836 * v02417;
-    const Scalar v02028 = v02023 * v02702;
-    const Scalar v01967 = v01965 + v01966;
-    const Scalar v02418 = v00824 * v02417;
-    const Scalar v01969 = v02702 * v08554;
-    const Scalar v01933 = v01931 + v01932;
-    const Scalar v02396 = v00836 * v02364;
-    const Scalar v01935 = v02702 * v08566;
-    const Scalar v01828 = v01826 + v01827;
-    const Scalar v02365 = v00824 * v02364;
-    const Scalar v01830 = v02702 * v08564;
-    const Scalar v02097 = v02095 + v02096;
-    const Scalar v02465 = v00830 * v02454;
-    const Scalar v02099 = v02702 * v08556;
-    const Scalar v02009 = v02007 + v02008;
-    const Scalar v02428 = v00830 * v02417;
-    const Scalar v02011 = v02702 * v08560;
-    const Scalar v01893 = v01891 + v01892;
-    const Scalar v02386 = v02385 * v02702;
-    const Scalar v02383 = v00830 * v02364;
-    const Scalar v02078 = v02076 + v02077;
-    const Scalar v02460 = v02454 * v08670;
-    const Scalar v02080 = v02702 * v08552;
-    const Scalar v01987 = v01985 + v01986;
-    const Scalar v02423 = v02417 * v08670;
-    const Scalar v01989 = v02702 * v08558;
-    const Scalar v01868 = v01866 + v01867;
-    const Scalar v02373 = v02364 * v08670;
-    const Scalar v01872 = v02702 * v08562;
-    const Scalar v02120 = v02119 * v02702;
-    const Scalar v00158 = v00013 * v06043;
-    const Scalar v02471 = v02121 + v02470;
-    const Scalar v02059 = v02058 * v02702;
-    const Scalar v00413 = v00090 * v05940;
-    const Scalar v02456 = v02060 + v02455;
-    const Scalar v02027 = v02026 * v02702;
-    const Scalar v00363 = v00090 * v05909;
-    const Scalar v02434 = v02028 + v02433;
-    const Scalar v01968 = v01967 * v02702;
-    const Scalar v00299 = v00087 * v05879;
-    const Scalar v02419 = v01969 + v02418;
-    const Scalar v01934 = v01933 * v02702;
-    const Scalar v00247 = v00087 * v05940;
-    const Scalar v02397 = v01935 + v02396;
-    const Scalar v01829 = v01828 * v02702;
-    const Scalar v02366 = v01830 + v02365;
-    const Scalar v02098 = v02097 * v02702;
-    const Scalar v00198 = v00087 * v05909;
-    const Scalar v02466 = v02099 + v02465;
-    const Scalar v02010 = v02009 * v02702;
-    const Scalar v02429 = v02011 + v02428;
-    const Scalar v01894 = v01893 * v02702;
-    const Scalar v00222 = v00090 * v05879;
-    const Scalar v02387 = v02383 + v02386;
-    const Scalar v02079 = v02078 * v02702;
-    const Scalar v02461 = v02080 + v02460;
-    const Scalar v01988 = v01987 * v02702;
-    const Scalar v02424 = v01989 + v02423;
-    const Scalar v01869 = v01868 * v02702;
-    const Scalar v02374 = v01872 + v02373;
-    const Scalar v08597 = v00158 + v02120;
-    const Scalar v02125 = v02471 * v02812;
-    const Scalar v08591 = v00413 + v02059;
-    const Scalar v02064 = v02456 * v02812;
-    const Scalar v08586 = v00363 + v02027;
-    const Scalar v02032 = v02434 * v02812;
-    const Scalar v08580 = v00299 + v01968;
-    const Scalar v01973 = v02419 * v02812;
-    const Scalar v08575 = v00247 + v01934;
-    const Scalar v01939 = v02397 * v02812;
-    const Scalar v08569 = v00158 + v01829;
-    const Scalar v01834 = v02366 * v02812;
-    const Scalar v08595 = v00198 + v02098;
-    const Scalar v02103 = v02466 * v02812;
-    const Scalar v08584 = v00158 + v02010;
-    const Scalar v02015 = v02429 * v02812;
-    const Scalar v08573 = v00222 + v01894;
-    const Scalar v01900 = v02387 * v02812;
-    const Scalar v08593 = v00299 + v02079;
-    const Scalar v02084 = v02461 * v02812;
-    const Scalar v08582 = v00247 + v01988;
-    const Scalar v01993 = v02424 * v02812;
-    const Scalar v08571 = v00198 + v01869;
-    const Scalar v01874 = v02374 * v02812;
-    const Scalar v08598 = v02125 + v08597;
-    const Scalar v08592 = v02064 + v08591;
-    const Scalar v08587 = v02032 + v08586;
-    const Scalar v08581 = v01973 + v08580;
-    const Scalar v08576 = v01939 + v08575;
-    const Scalar v08570 = v01834 + v08569;
-    const Scalar v08596 = v02103 + v08595;
-    const Scalar v08585 = v02015 + v08584;
-    const Scalar v08574 = v01900 + v08573;
-    const Scalar v08594 = v02084 + v08593;
-    const Scalar v08583 = v01993 + v08582;
-    const Scalar v08572 = v01874 + v08571;
-    const Scalar v02509 = v00844 * v08598;
-    const Scalar v02508 = v00832 * v08592;
-    const Scalar v02503 = v00844 * v08587;
-    const Scalar v02502 = v00832 * v08581;
-    const Scalar v02497 = v00844 * v08576;
-    const Scalar v02496 = v00832 * v08570;
-    const Scalar v02491 = v02134 * v08592;
-    const Scalar v02490 = v00844 * v08596;
-    const Scalar v02485 = v02134 * v08581;
-    const Scalar v02484 = v00844 * v08585;
-    const Scalar v02479 = v02134 * v08570;
-    const Scalar v02478 = v00844 * v08574;
-    const Scalar v02473 = v01843 * v08594;
-    const Scalar v02472 = v00844 * v08592;
-    const Scalar v02436 = v01843 * v08583;
-    const Scalar v02435 = v00844 * v08581;
-    const Scalar v02399 = v01843 * v08572;
-    const Scalar v02398 = v00844 * v08570;
-    const Scalar v08617 = v02508 + v02509;
-    const Scalar v02510 = v02134 * v08594;
-    const Scalar v08614 = v02502 + v02503;
-    const Scalar v02504 = v02134 * v08583;
-    const Scalar v08611 = v02496 + v02497;
-    const Scalar v02498 = v02134 * v08572;
-    const Scalar v08608 = v02490 + v02491;
-    const Scalar v02492 = v01909 * v08594;
-    const Scalar v08605 = v02484 + v02485;
-    const Scalar v02486 = v01909 * v08583;
-    const Scalar v08602 = v02478 + v02479;
-    const Scalar v02480 = v01909 * v08572;
-    const Scalar v08599 = v02472 + v02473;
-    const Scalar v02474 = v00838 * v08596;
-    const Scalar v08588 = v02435 + v02436;
-    const Scalar v02437 = v00838 * v08585;
-    const Scalar v08577 = v02398 + v02399;
-    const Scalar v02400 = v00838 * v08574;
-    const Scalar v08618 = v02510 + v08617;
-    const Scalar v02511 = v01843 * v08596;
-    const Scalar v08615 = v02504 + v08614;
-    const Scalar v02505 = v01843 * v08585;
-    const Scalar v08612 = v02498 + v08611;
-    const Scalar v02499 = v01843 * v08574;
-    const Scalar v08609 = v02492 + v08608;
-    const Scalar v02493 = v00826 * v08598;
-    const Scalar v08606 = v02486 + v08605;
-    const Scalar v02487 = v00826 * v08587;
-    const Scalar v08603 = v02480 + v08602;
-    const Scalar v02481 = v00826 * v08576;
-    const Scalar v08600 = v02474 + v08599;
-    const Scalar v02475 = v01909 * v08598;
-    const Scalar v08589 = v02437 + v08588;
-    const Scalar v02438 = v01909 * v08587;
-    const Scalar v08578 = v02400 + v08577;
-    const Scalar v02401 = v01909 * v08576;
-    const Scalar v08619 = v02511 + v08618;
-    const Scalar v08616 = v02505 + v08615;
-    const Scalar v08613 = v02499 + v08612;
-    const Scalar v08610 = v02493 + v08609;
-    const Scalar v08607 = v02487 + v08606;
-    const Scalar v08604 = v02481 + v08603;
-    const Scalar v08601 = v02475 + v08600;
-    const Scalar v08590 = v02438 + v08589;
-    const Scalar v08579 = v02401 + v08578;
-    const Scalar v02513 = static_cast<Scalar>(2) * v08619;
-    const Scalar v02507 = static_cast<Scalar>(2) * v08616;
-    const Scalar v02501 = static_cast<Scalar>(2) * v08613;
-    const Scalar v02495 = static_cast<Scalar>(2) * v08610;
-    const Scalar v02489 = static_cast<Scalar>(2) * v08607;
-    const Scalar v02483 = static_cast<Scalar>(2) * v08604;
-    const Scalar v02477 = static_cast<Scalar>(2) * v08601;
-    const Scalar v02440 = static_cast<Scalar>(2) * v08590;
-    const Scalar v02403 = static_cast<Scalar>(2) * v08579;
-    _d0(0, 0) = v02403;
-    _d0(0, 1) = v02440;
-    _d0(0, 2) = v02477;
-    _d0(1, 0) = v02483;
-    _d0(1, 1) = v02489;
-    _d0(1, 2) = v02495;
-    _d0(2, 0) = v02501;
-    _d0(2, 1) = v02507;
-    _d0(2, 2) = v02513;
+    const Scalar v02409 = v02406 * v04503 + v01063 * v05012;
+    const Scalar v01982 = v01981 + -v00859;
+    const Scalar v01962 = v01109 + v01815;
+    const Scalar v02348 = v02341 * v04503 + v00859 * v05012;
+    const Scalar v01816 = v01815 + -v00911;
+    const Scalar v01823 = v00920 + v08094;
+    const Scalar v02454 = (v02443 * v05366 + v00911 * v05597) * v05396 + v02446 * v03585;
+    const Scalar v04683 = v00911 * v02742;
+    const Scalar v02417 = (v02406 * v05366 + v01063 * v05597) * v05396 + v02409 * v03585;
+    const Scalar v04745 = v01063 * v02742;
+    const Scalar v02364 = (v02341 * v05366 + v00859 * v05597) * v05396 + v02348 * v03585;
+    const Scalar v04647 = v00859 * v02742;
+    const Scalar v00198 = v00087 * v05970;
+    const Scalar v00299 = v00087 * v05940;
+    const Scalar v00158 = v00013 * (v00060 * v00090);
+    const Scalar v00247 = v00087 * v06001;
+    const Scalar v02104 =
+        v00198 + (v02446 * v04227 + v01890 * v04683) * v02702 +
+        ((v01322 + v00087 * (v07941 + (v00822 + v07822)) + v00013 * v02092) * v02702 +
+         v00830 * v02454) *
+            v02837;
+    const Scalar v02085 =
+        v00299 + (v02446 * v04310 + v04557 * v04683) * v02702 +
+        ((v00804 * (v00005 * v00090) + v00087 * (v00835 + v07884) + -(v01004 + v08751)) * v02702 +
+         v02454 * v08774) *
+            v02837;
+    const Scalar v02126 =
+        v00158 + (v02446 * v05199 + v01921 * v04683) * v02702 +
+        ((v00008 * (v08094 + -v01063) + v00087 * (v00841 + v07909) + v00005 * v02092) * v02702 +
+         v00836 * v02454) *
+            v02837;
+    const Scalar v02065 =
+        v00090 * v06001 + (v02446 * v04150 + v01813 * v04683) * v02702 +
+        ((v00087 * (v00008 * v00016 + v07858 + v08735) + v08750) * v02702 + v00824 * v02454) *
+            v02837;
+    const Scalar v02016 =
+        v00158 + (v02409 * v04227 + v01890 * v04745) * v02702 +
+        ((v00001 * v01962 + v00087 * (v00840 + v07909) + v00005 * v01982) * v02702 +
+         v00830 * v02417) *
+            v02837;
+    const Scalar v01994 =
+        v00247 + (v02409 * v04310 + v04557 * v04745) * v02702 +
+        ((v01109 * v08759 + v00087 * (v07942 + (v00829 + v07858)) + v00001 * v01982) * v02702 +
+         v02417 * v08774) *
+            v02837;
+    const Scalar v02033 =
+        v00090 * v05970 + (v02409 * v05199 + v01921 * v04745) * v02702 +
+        ((v00087 * (v00005 * v00016 + v07822 + v08734) + v08749) * v02702 + v00836 * v02417) *
+            v02837;
+    const Scalar v01974 =
+        v00299 + (v02409 * v04150 + v01813 * v04745) * v02702 +
+        ((v01114 + v00087 * (v00016 * v08758 + (v07857 + v07884)) + v00013 * v01962) * v02702 +
+         v00824 * v02417) *
+            v02837;
+    const Scalar v01901 =
+        v00090 * v05940 + (v02348 * v04227 + v01890 * v04647) * v02702 +
+        (v00830 * v02364 + ((v01004 + v08748) + v00087 * (v07884 + v08736)) * v02702) * v02837;
+    const Scalar v01875 =
+        v00198 + (v02348 * v04310 + v04557 * v04647) * v02702 +
+        ((v00920 * v08758 + v00087 * (v07941 + (v00823 + v07822)) + v00008 * v01816) * v02702 +
+         v02364 * v08774) *
+            v02837;
+    const Scalar v01940 =
+        v00247 + (v02348 * v05199 + v01921 * v04647) * v02702 +
+        ((v01040 + v00087 * (v07942 + (v00828 + v07858)) + v00013 * v01823) * v02702 +
+         v00836 * v02364) *
+            v02837;
+    const Scalar v01835 =
+        v00158 + (v02348 * v04150 + v01813 * v04647) * v02702 +
+        ((v00001 * v01816 + v00087 * (v00839 + v07909) + v00008 * v01823) * v02702 +
+         v00824 * v02364) *
+            v02837;
+    _d0(0, 0) = static_cast<Scalar>(2) *
+                (v00844 * v01835 + v01843 * v01875 + v00838 * v01901 + v01909 * v01940);
+    _d0(0, 1) = static_cast<Scalar>(2) *
+                (v00844 * v01974 + v01843 * v01994 + v00838 * v02016 + v01909 * v02033);
+    _d0(0, 2) = static_cast<Scalar>(2) *
+                (v00844 * v02065 + v01843 * v02085 + v00838 * v02104 + v01909 * v02126);
+    _d0(1, 0) = static_cast<Scalar>(2) *
+                (v00844 * v01901 + v01835 * v02134 + v01875 * v01909 + v00826 * v01940);
+    _d0(1, 1) = static_cast<Scalar>(2) *
+                (v00844 * v02016 + v01974 * v02134 + v01909 * v01994 + v00826 * v02033);
+    _d0(1, 2) = static_cast<Scalar>(2) *
+                (v00844 * v02104 + v02065 * v02134 + v01909 * v02085 + v00826 * v02126);
+    _d0(2, 0) = static_cast<Scalar>(2) *
+                (v00832 * v01835 + v00844 * v01940 + v01875 * v02134 + v01843 * v01901);
+    _d0(2, 1) = static_cast<Scalar>(2) *
+                (v00832 * v01974 + v00844 * v02033 + v01994 * v02134 + v01843 * v02016);
+    _d0(2, 2) = static_cast<Scalar>(2) *
+                (v00832 * v02065 + v00844 * v02126 + v02085 * v02134 + v01843 * v02104);
   }
   if (static_cast<bool>(_d1)) {
-    const Scalar v07790 = v00809 * v08526;
-    const Scalar v07789 = v00804 * v08526;
-    const Scalar v07791 = v00814 * v08526;
-    const Scalar v03577 = v00090 * v08526;
-    const Scalar v02604 = v02442 + v07790;
-    const Scalar v02560 = v02405 + v07789;
-    const Scalar v02516 = v02340 + v07791;
-    const Scalar v02235 = v00001 * v00859;
-    const Scalar v01682 = v00008 * v03577;
-    const Scalar v02169 = v00008 * v00911;
-    const Scalar v01626 = v00005 * v03577;
-    const Scalar v02606 = v01109 * v04975;
-    const Scalar v02605 = v02604 * v04477;
-    const Scalar v02610 = v01109 * v04982;
-    const Scalar v02609 = v02604 * v04466;
-    const Scalar v02562 = v00920 * v04975;
-    const Scalar v02561 = v02560 * v04477;
-    const Scalar v02566 = v00920 * v04982;
-    const Scalar v02565 = v02560 * v04466;
-    const Scalar v02518 = v01263 * v04975;
-    const Scalar v02517 = v02516 * v04477;
-    const Scalar v02522 = v01263 * v04982;
-    const Scalar v02521 = v02516 * v04466;
-    const Scalar v03498 = v00143 * v02649;
-    const Scalar v01476 = v00001 * v03577;
-    const Scalar v08549 = v01682 + v02235;
-    const Scalar v07712 = v00005 * v01109;
-    const Scalar v08545 = v01626 + v02169;
-    const Scalar v07676 = v00001 * v00920;
-    const Scalar v02607 = v02605 + v02606;
-    const Scalar v02611 = v02609 + v02610;
-    const Scalar v01350 = v00005 * v01263;
-    const Scalar v01348 = v01063 * v08649;
-    const Scalar v02563 = v02561 + v02562;
-    const Scalar v02567 = v02565 + v02566;
-    const Scalar v01115 = v00013 * v01109;
-    const Scalar v02519 = v02517 + v02518;
-    const Scalar v02523 = v02521 + v02522;
-    const Scalar v01041 = v00013 * v00920;
-    const Scalar v00939 = v00008 * v00920;
-    const Scalar v00935 = v00911 * v08647;
-    const Scalar v01323 = v00013 * v01263;
-    const Scalar v01169 = v00001 * v01109;
-    const Scalar v01166 = v00859 * v08648;
-    const Scalar v07476 = v03498 * v08528;
-    const Scalar v02302 = v01476 + v08520;
-    const Scalar v08550 = v07712 + v08549;
-    const Scalar v08546 = v07676 + v08545;
-    const Scalar v08487 = v02607 * v03510;
-    const Scalar v02613 = v02611 * v04521;
-    const Scalar v08541 = v01348 + v01350;
-    const Scalar v01430 = v00013 * v03577;
-    const Scalar v08458 = v02563 * v03510;
-    const Scalar v02569 = v02567 * v04521;
-    const Scalar v08535 = v01114 + v01115;
-    const Scalar v01556 = v03577 * v08647;
-    const Scalar v08405 = v02519 * v03510;
-    const Scalar v02525 = v02523 * v04521;
-    const Scalar v08533 = v01040 + v01041;
-    const Scalar v01500 = v03577 * v08649;
-    const Scalar v08531 = v00935 + v00939;
-    const Scalar v08539 = v01322 + v01323;
-    const Scalar v01728 = v03577 * v08648;
-    const Scalar v08537 = v01166 + v01169;
-    const Scalar v02308 = v02611 * v07476;
-    const Scalar v02303 = v00055 * v02302;
-    const Scalar v02243 = v02567 * v07476;
-    const Scalar v02238 = v00055 * v08550;
-    const Scalar v02178 = v02523 * v07476;
-    const Scalar v02173 = v00055 * v08546;
-    const Scalar v02615 = v02613 + v08487;
-    const Scalar v08542 = v01430 + v08541;
-    const Scalar v04720 = v01109 * v02736;
-    const Scalar v01683 = v01682 + v08519;
-    const Scalar v02571 = v02569 + v08458;
-    const Scalar v01627 = v01626 + v08518;
-    const Scalar v04668 = v00920 * v02736;
-    const Scalar v08536 = v01556 + v08535;
-    const Scalar v02527 = v02525 + v08405;
-    const Scalar v08534 = v01500 + v08533;
-    const Scalar v04741 = v01263 * v02736;
-    const Scalar v08532 = v01430 + v08531;
-    const Scalar v08540 = v01728 + v08539;
-    const Scalar v08538 = v01430 + v08537;
-    const Scalar v01477 = v01476 + v08517;
-    const Scalar v07477 = v03510 * v08528;
-    const Scalar v02309 = v02303 + v02308;
-    const Scalar v02244 = v02238 + v02243;
-    const Scalar v02179 = v02173 + v02178;
-    const Scalar v02626 = v00836 * v02615;
-    const Scalar v02333 = v02702 * v08542;
-    const Scalar v02330 = v01921 * v04720;
-    const Scalar v02329 = v02607 * v04028;
-    const Scalar v02616 = v00824 * v02615;
-    const Scalar v02293 = v01683 * v02702;
-    const Scalar v02290 = v01813 * v04720;
-    const Scalar v02289 = v02607 * v04135;
-    const Scalar v02582 = v00836 * v02571;
-    const Scalar v02268 = v01627 * v02702;
-    const Scalar v02265 = v01921 * v04668;
-    const Scalar v02264 = v02563 * v04028;
-    const Scalar v02572 = v00824 * v02571;
-    const Scalar v02228 = v02702 * v08536;
-    const Scalar v02225 = v01813 * v04668;
-    const Scalar v02224 = v02563 * v04135;
-    const Scalar v02538 = v00836 * v02527;
-    const Scalar v02203 = v02702 * v08534;
-    const Scalar v02200 = v01921 * v04741;
-    const Scalar v02199 = v02519 * v04028;
-    const Scalar v02528 = v00824 * v02527;
-    const Scalar v02163 = v02702 * v08532;
-    const Scalar v02160 = v01813 * v04741;
-    const Scalar v02159 = v02519 * v04135;
-    const Scalar v02621 = v00830 * v02615;
-    const Scalar v02323 = v02702 * v08540;
-    const Scalar v02320 = v01890 * v04720;
-    const Scalar v02319 = v02607 * v04211;
-    const Scalar v02577 = v00830 * v02571;
-    const Scalar v02258 = v02702 * v08538;
-    const Scalar v02255 = v01890 * v04668;
-    const Scalar v02254 = v02563 * v04211;
-    const Scalar v02533 = v00830 * v02527;
-    const Scalar v02193 = v01477 * v02702;
-    const Scalar v02190 = v01890 * v04741;
-    const Scalar v02189 = v02519 * v04211;
-    const Scalar v02315 = v02607 * v07477;
-    const Scalar v02314 = v00058 * v02309;
-    const Scalar v02311 = v04532 * v04720;
-    const Scalar v02310 = v02607 * v04293;
-    const Scalar v02250 = v02563 * v07477;
-    const Scalar v02249 = v00058 * v02244;
-    const Scalar v02246 = v04532 * v04668;
-    const Scalar v02245 = v02563 * v04293;
-    const Scalar v02185 = v02519 * v07477;
-    const Scalar v02184 = v00058 * v02179;
-    const Scalar v02181 = v04532 * v04741;
-    const Scalar v02180 = v02519 * v04293;
-    const Scalar v02627 = v02333 + v02626;
-    const Scalar v02331 = v02329 + v02330;
-    const Scalar v02617 = v02293 + v02616;
-    const Scalar v02291 = v02289 + v02290;
-    const Scalar v02583 = v02268 + v02582;
-    const Scalar v02266 = v02264 + v02265;
-    const Scalar v02573 = v02228 + v02572;
-    const Scalar v02226 = v02224 + v02225;
-    const Scalar v02539 = v02203 + v02538;
-    const Scalar v02201 = v02199 + v02200;
-    const Scalar v02529 = v02163 + v02528;
-    const Scalar v02161 = v02159 + v02160;
-    const Scalar v02622 = v02323 + v02621;
-    const Scalar v02321 = v02319 + v02320;
-    const Scalar v02578 = v02258 + v02577;
-    const Scalar v02256 = v02254 + v02255;
-    const Scalar v02534 = v02193 + v02533;
-    const Scalar v02191 = v02189 + v02190;
-    const Scalar v08668 = -v02812;
-    const Scalar v02316 = v02314 + v02315;
-    const Scalar v02312 = v02310 + v02311;
-    const Scalar v02251 = v02249 + v02250;
-    const Scalar v02247 = v02245 + v02246;
-    const Scalar v02186 = v02184 + v02185;
-    const Scalar v02182 = v02180 + v02181;
-    const Scalar v02337 = v02627 * v02812;
-    const Scalar v02332 = v02331 * v02702;
-    const Scalar v02297 = v02617 * v02812;
-    const Scalar v02292 = v02291 * v02702;
-    const Scalar v02272 = v02583 * v02812;
-    const Scalar v02267 = v02266 * v02702;
-    const Scalar v02232 = v02573 * v02812;
-    const Scalar v02227 = v02226 * v02702;
-    const Scalar v02207 = v02539 * v02812;
-    const Scalar v02202 = v02201 * v02702;
-    const Scalar v02167 = v02529 * v02812;
-    const Scalar v02162 = v02161 * v02702;
-    const Scalar v02327 = v02622 * v02812;
-    const Scalar v02322 = v02321 * v02702;
-    const Scalar v02262 = v02578 * v02812;
-    const Scalar v02257 = v02256 * v02702;
-    const Scalar v02197 = v02534 * v02812;
-    const Scalar v02192 = v02191 * v02702;
-    const Scalar v02317 = v02316 * v08668;
-    const Scalar v02313 = v02312 * v02702;
-    const Scalar v02252 = v02251 * v08668;
-    const Scalar v02248 = v02247 * v02702;
-    const Scalar v02187 = v02186 * v08668;
-    const Scalar v02183 = v02182 * v02702;
-    const Scalar v02338 = v02332 + v02337;
-    const Scalar v02298 = v02292 + v02297;
-    const Scalar v02273 = v02267 + v02272;
-    const Scalar v02233 = v02227 + v02232;
-    const Scalar v02208 = v02202 + v02207;
-    const Scalar v02168 = v02162 + v02167;
-    const Scalar v02328 = v02322 + v02327;
-    const Scalar v02263 = v02257 + v02262;
-    const Scalar v02198 = v02192 + v02197;
-    const Scalar v02318 = v02313 + v02317;
-    const Scalar v02253 = v02248 + v02252;
-    const Scalar v02188 = v02183 + v02187;
-    const Scalar v02641 = v00844 * v02338;
-    const Scalar v02640 = v00832 * v02298;
-    const Scalar v02597 = v00844 * v02273;
-    const Scalar v02596 = v00832 * v02233;
-    const Scalar v02553 = v00844 * v02208;
-    const Scalar v02552 = v00832 * v02168;
-    const Scalar v02635 = v02134 * v02298;
-    const Scalar v02634 = v00844 * v02328;
-    const Scalar v02591 = v02134 * v02233;
-    const Scalar v02590 = v00844 * v02263;
-    const Scalar v02547 = v02134 * v02168;
-    const Scalar v02546 = v00844 * v02198;
-    const Scalar v02629 = v01843 * v02318;
-    const Scalar v02628 = v00844 * v02298;
-    const Scalar v02585 = v01843 * v02253;
-    const Scalar v02584 = v00844 * v02233;
-    const Scalar v02541 = v01843 * v02188;
-    const Scalar v02540 = v00844 * v02168;
-    const Scalar v08644 = v02640 + v02641;
-    const Scalar v02642 = v02134 * v02318;
-    const Scalar v08635 = v02596 + v02597;
-    const Scalar v02598 = v02134 * v02253;
-    const Scalar v08626 = v02552 + v02553;
-    const Scalar v02554 = v02134 * v02188;
-    const Scalar v08641 = v02634 + v02635;
-    const Scalar v02636 = v01909 * v02318;
-    const Scalar v08632 = v02590 + v02591;
-    const Scalar v02592 = v01909 * v02253;
-    const Scalar v08623 = v02546 + v02547;
-    const Scalar v02548 = v01909 * v02188;
-    const Scalar v08638 = v02628 + v02629;
-    const Scalar v02630 = v00838 * v02328;
-    const Scalar v08629 = v02584 + v02585;
-    const Scalar v02586 = v00838 * v02263;
-    const Scalar v08620 = v02540 + v02541;
-    const Scalar v02542 = v00838 * v02198;
-    const Scalar v08645 = v02642 + v08644;
-    const Scalar v02643 = v01843 * v02328;
-    const Scalar v08636 = v02598 + v08635;
-    const Scalar v02599 = v01843 * v02263;
-    const Scalar v08627 = v02554 + v08626;
-    const Scalar v02555 = v01843 * v02198;
-    const Scalar v08642 = v02636 + v08641;
-    const Scalar v02637 = v00826 * v02338;
-    const Scalar v08633 = v02592 + v08632;
-    const Scalar v02593 = v00826 * v02273;
-    const Scalar v08624 = v02548 + v08623;
-    const Scalar v02549 = v00826 * v02208;
-    const Scalar v08639 = v02630 + v08638;
-    const Scalar v02631 = v01909 * v02338;
-    const Scalar v08630 = v02586 + v08629;
-    const Scalar v02587 = v01909 * v02273;
-    const Scalar v08621 = v02542 + v08620;
-    const Scalar v02543 = v01909 * v02208;
-    const Scalar v08646 = v02643 + v08645;
-    const Scalar v08637 = v02599 + v08636;
-    const Scalar v08628 = v02555 + v08627;
-    const Scalar v08643 = v02637 + v08642;
-    const Scalar v08634 = v02593 + v08633;
-    const Scalar v08625 = v02549 + v08624;
-    const Scalar v08640 = v02631 + v08639;
-    const Scalar v08631 = v02587 + v08630;
-    const Scalar v08622 = v02543 + v08621;
-    const Scalar v02645 = static_cast<Scalar>(2) * v08646;
-    const Scalar v02601 = static_cast<Scalar>(2) * v08637;
-    const Scalar v02557 = static_cast<Scalar>(2) * v08628;
-    const Scalar v02639 = static_cast<Scalar>(2) * v08643;
-    const Scalar v02595 = static_cast<Scalar>(2) * v08634;
-    const Scalar v02551 = static_cast<Scalar>(2) * v08625;
-    const Scalar v02633 = static_cast<Scalar>(2) * v08640;
-    const Scalar v02589 = static_cast<Scalar>(2) * v08631;
-    const Scalar v02545 = static_cast<Scalar>(2) * v08622;
-    _d1(0, 0) = v02545;
-    _d1(0, 1) = v02589;
-    _d1(0, 2) = v02633;
-    _d1(1, 0) = v02551;
-    _d1(1, 1) = v02595;
-    _d1(1, 2) = v02639;
-    _d1(2, 0) = v02557;
-    _d1(2, 1) = v02601;
-    _d1(2, 2) = v02645;
+    const Scalar v02604 = v02442 + v00016 * v00809;
+    const Scalar v03587 = v00016 * v00090;
+    const Scalar v02560 = v02405 + v00016 * v00804;
+    const Scalar v02516 = v02340 + v00016 * v00814;
+    const Scalar v01476 = v00001 * v03587;
+    const Scalar v01682 = v00008 * v03587;
+    const Scalar v01626 = v00005 * v03587;
+    const Scalar v02607 = v02604 * v04503 + v01109 * v05012;
+    const Scalar v02611 = v02604 * v05366 + v01109 * v05597;
+    const Scalar v08194 = v00842 * (v00143 * v02650);
+    const Scalar v02563 = v02560 * v04503 + v00920 * v05012;
+    const Scalar v02567 = v02560 * v05366 + v00920 * v05597;
+    const Scalar v02519 = v02516 * v04503 + v01263 * v05012;
+    const Scalar v02523 = v02516 * v05366 + v01263 * v05597;
+    const Scalar v01430 = v00013 * v03587;
+    const Scalar v02615 = v02611 * v05396 + v02607 * v03585;
+    const Scalar v04751 = v01109 * v02742;
+    const Scalar v07623 = v00842 * v03585;
+    const Scalar v02571 = v02567 * v05396 + v02563 * v03585;
+    const Scalar v04699 = v00920 * v02742;
+    const Scalar v02527 = v02523 * v05396 + v02519 * v03585;
+    const Scalar v04777 = v01263 * v02742;
+    const Scalar v08763 = -v02837;
+    const Scalar v02328 =
+        (v02607 * v04227 + v01890 * v04751) * v02702 +
+        ((v01322 + v00013 * v01263 + v03587 * v08759) * v02702 + v00830 * v02615) * v02837;
+    const Scalar v02318 =
+        (v02607 * v04310 + v04557 * v04751) * v02702 +
+        (v00058 * (v00055 * (v01476 + v08751) + v02611 * v08194) + v02607 * v07623) * v08763;
+    const Scalar v02338 =
+        (v02607 * v05199 + v01921 * v04751) * v02702 +
+        ((v01063 * v08760 + v00005 * v01263 + v01430) * v02702 + v00836 * v02615) * v02837;
+    const Scalar v02298 = (v02607 * v04150 + v01813 * v04751) * v02702 +
+                          ((v01682 + v08750) * v02702 + v00824 * v02615) * v02837;
+    const Scalar v02263 =
+        (v02563 * v04227 + v01890 * v04699) * v02702 +
+        ((v00859 * v08759 + v00001 * v01109 + v01430) * v02702 + v00830 * v02571) * v02837;
+    const Scalar v02253 =
+        (v02563 * v04310 + v04557 * v04699) * v02702 +
+        (v00058 * (v00055 * (v01682 + v00001 * v00859 + v00005 * v01109) + v02567 * v08194) +
+         v02563 * v07623) *
+            v08763;
+    const Scalar v02273 = (v02563 * v05199 + v01921 * v04699) * v02702 +
+                          ((v01626 + v08749) * v02702 + v00836 * v02571) * v02837;
+    const Scalar v02233 =
+        (v02563 * v04150 + v01813 * v04699) * v02702 +
+        ((v01114 + v00013 * v01109 + v03587 * v08758) * v02702 + v00824 * v02571) * v02837;
+    const Scalar v02198 = (v02519 * v04227 + v01890 * v04777) * v02702 +
+                          ((v01476 + v08748) * v02702 + v00830 * v02527) * v02837;
+    const Scalar v02188 =
+        (v02519 * v04310 + v04557 * v04777) * v02702 +
+        (v00058 * (v00055 * (v01626 + v00008 * v00911 + v00001 * v00920) + v02523 * v08194) +
+         v02519 * v07623) *
+            v08763;
+    const Scalar v02208 =
+        (v02519 * v05199 + v01921 * v04777) * v02702 +
+        ((v01040 + v00013 * v00920 + v03587 * v08760) * v02702 + v00836 * v02527) * v02837;
+    const Scalar v02168 =
+        (v02519 * v04150 + v01813 * v04777) * v02702 +
+        ((v00911 * v08758 + v00008 * v00920 + v01430) * v02702 + v00824 * v02527) * v02837;
+    _d1(0, 0) = static_cast<Scalar>(2) *
+                (v00844 * v02168 + v01843 * v02188 + v00838 * v02198 + v01909 * v02208);
+    _d1(0, 1) = static_cast<Scalar>(2) *
+                (v00844 * v02233 + v01843 * v02253 + v00838 * v02263 + v01909 * v02273);
+    _d1(0, 2) = static_cast<Scalar>(2) *
+                (v00844 * v02298 + v01843 * v02318 + v00838 * v02328 + v01909 * v02338);
+    _d1(1, 0) = static_cast<Scalar>(2) *
+                (v00844 * v02198 + v02134 * v02168 + v01909 * v02188 + v00826 * v02208);
+    _d1(1, 1) = static_cast<Scalar>(2) *
+                (v00844 * v02263 + v02134 * v02233 + v01909 * v02253 + v00826 * v02273);
+    _d1(1, 2) = static_cast<Scalar>(2) *
+                (v00844 * v02328 + v02134 * v02298 + v01909 * v02318 + v00826 * v02338);
+    _d1(2, 0) = static_cast<Scalar>(2) *
+                (v00832 * v02168 + v00844 * v02208 + v02134 * v02188 + v01843 * v02198);
+    _d1(2, 1) = static_cast<Scalar>(2) *
+                (v00832 * v02233 + v00844 * v02273 + v02134 * v02253 + v01843 * v02263);
+    _d1(2, 2) = static_cast<Scalar>(2) *
+                (v00832 * v02298 + v00844 * v02338 + v02134 * v02318 + v01843 * v02328);
   }
   _q_out(0, 0) = v00826;
   _q_out(1, 0) = v00832;
@@ -898,4 +354,4 @@ void quat_interpolation_sffo(const T0& q0_xyzw, const T1& q1_xyzw, const Scalar 
   _q_out(3, 0) = v00844;
 }
 
-} // namespace gen
+}  // namespace gen

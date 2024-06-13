@@ -17,9 +17,9 @@
 #include "generated/quat_interpolation/wf/quat_local_coordinates.h"
 #include "generated/quat_interpolation/wf/quat_local_coordinates_sffo.h"
 
+#include "ceres_utils.h"
 #include "quat_interpolation_ceres.h"
 #include "quat_interpolation_handwritten.h"
-#include "ceres_utils.h"
 
 std::vector<Eigen::Vector4d> generate_quaternions(const std::size_t num_samples) {
   std::default_random_engine engine{0};

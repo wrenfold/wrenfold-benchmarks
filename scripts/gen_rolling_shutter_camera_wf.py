@@ -6,14 +6,13 @@ import dataclasses
 import typing as T
 
 from wrenfold import sym
-from wrenfold.code_generation import OutputArg, OptimizationParams, CppGenerator, cse_function_description, create_function_description
+from wrenfold.code_generation import OutputArg, CppGenerator
 from wrenfold.geometry import Quaternion
 from wrenfold.type_annotations import Vector4, Vector3, FloatScalar
 from wrenfold.sympy_conversion import to_sympy, from_sympy
 from wrenfold.type_info import CustomType
 
 from utils import get_output_dir, generate_wrenfold_function
-from symforce_utils import configure_symforce
 
 
 @dataclasses.dataclass
@@ -35,6 +34,24 @@ class CameraParams:
     p1: FloatScalar
     p2: FloatScalar
 
+    def to_vector(self) -> sym.MatrixExpr:
+        return sym.vector(
+            self.fx,
+            self.fy,
+            self.cx,
+            self.cy,
+            self.k1,
+            self.k2,
+            self.k3,
+            self.p1,
+            self.p2,
+        )
+
+    @staticmethod
+    def from_vector(vec: sym.MatrixExpr) -> "CameraParams":
+        fx, fy, cx, cy, k1, k2, k3, p1, p2 = vec
+        return CameraParams(fx, fy, cx, cy, k1, k2, k3, p1, p2)
+
 
 def opencv_project(p_cam: Vector3, camera: CameraParams) -> sym.MatrixExpr:
     """
@@ -52,6 +69,33 @@ def opencv_project(p_cam: Vector3, camera: CameraParams) -> sym.MatrixExpr:
     x_pixels = x_d * camera.fx + camera.cx
     y_pixels = y_d * camera.fy + camera.cy
     return sym.vector(x_pixels, y_pixels)
+
+
+def integrate_and_project_(
+    world_R_imu: Quaternion,
+    world_t_imu: Vector3,
+    imu_R_cam: Quaternion,
+    imu_t_cam: Vector3,
+    angular_velocity_imu: Vector3,
+    world_v_imu: Vector3,
+    p_world: Vector3,
+    row_time: FloatScalar,
+    camera: CameraParams,
+) -> sym.MatrixExpr:
+    # Transform IMU to the specific row time:
+    world_R_imu_at_row = world_R_imu * Quaternion.from_rotation_vector(
+        angular_velocity_imu * row_time, epsilon=1.0e-16)
+    world_t_imu_at_row = world_t_imu + world_v_imu * row_time
+
+    # Apply extrinsic transform:
+    world_R_cam = world_R_imu_at_row * imu_R_cam
+    world_t_cam = (world_t_imu_at_row + world_R_imu_at_row.to_rotation_matrix() * imu_t_cam)
+
+    # Transform the point to camera frame:
+    p_cam = world_R_cam.conjugate().to_rotation_matrix() * (p_world - world_t_cam)
+
+    # Project it:
+    return opencv_project(p_cam, camera=camera)
 
 
 def integrate_and_project(
@@ -75,21 +119,17 @@ def integrate_and_project(
     """
     world_R_imu = Quaternion.from_xyzw(world_R_imu_xyzw)
     imu_R_cam = Quaternion.from_xyzw(imu_R_cam_xyzw)
-
-    # Transform IMU to the specific row time:
-    world_R_imu_at_row = world_R_imu * Quaternion.from_rotation_vector(
-        angular_velocity_imu * row_time, epsilon=1.0e-16)
-    world_t_imu_at_row = world_t_imu + world_v_imu * row_time
-
-    # Apply extrinsic transform:
-    world_R_cam = world_R_imu_at_row * imu_R_cam
-    world_t_cam = (world_t_imu_at_row + world_R_imu_at_row.to_rotation_matrix() * imu_t_cam)
-
-    # Transform the point to camera frame:
-    p_cam = world_R_cam.conjugate().to_rotation_matrix() * (p_world - world_t_cam)
-
-    # Project it:
-    p_image = opencv_project(p_cam, camera=camera)
+    p_image = integrate_and_project_(
+        world_R_imu=world_R_imu,
+        world_t_imu=world_t_imu,
+        imu_R_cam=imu_R_cam,
+        imu_t_cam=imu_t_cam,
+        angular_velocity_imu=angular_velocity_imu,
+        world_v_imu=world_v_imu,
+        p_world=p_world,
+        row_time=row_time,
+        camera=camera,
+    )
 
     # Output derivatives wrt to:
     # Pose in world: world_T_imu
@@ -130,12 +170,9 @@ class CustomGenerator(CppGenerator):
 
 def main():
     output_dir = get_output_dir("rolling_shutter_camera") / "wf"
-    params = OptimizationParams()
-    params.factorization_passes = 5
     generate_wrenfold_function(
         integrate_and_project,
         output_dir=output_dir,
-        params=params,
         generator=CustomGenerator(),
     )
 

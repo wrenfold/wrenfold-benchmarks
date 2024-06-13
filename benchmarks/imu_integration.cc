@@ -11,10 +11,10 @@
 #include "generated/imu_integration/wf/integrate_imu.h"
 #include "generated/imu_integration/wf/integrate_imu_sffo.h"
 
+#include "ceres_utils.h"
 #include "imu_integration_ceres.h"
 #include "imu_integration_handwritten.h"
 #include "quat_interpolation_handwritten.h"
-#include "ceres_utils.h"
 
 struct integration_input {
   Eigen::Vector4d i_R_j;
