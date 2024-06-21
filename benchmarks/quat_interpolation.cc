@@ -79,7 +79,7 @@ void bench_quat_interpolation(benchmark::State& state, F&& func) {
   }
 }
 
-void BM_QuatLocalCoordsHandwritten(benchmark::State& state) {
+void BM_QuatLocalCoords_Handwritten(benchmark::State& state) {
   bench_local_coords(state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1,
                                Eigen::Vector3d& v_out, Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
     v_out = handwritten::quaternion_local_coords(Eigen::Quaterniond(q0), Eigen::Quaterniond(q1),
@@ -87,33 +87,33 @@ void BM_QuatLocalCoordsHandwritten(benchmark::State& state) {
   });
 }
 
-void BM_QuatLocalCoordsSymforceChain(benchmark::State& state) {
+void BM_QuatLocalCoords_SymforceChain(benchmark::State& state) {
   bench_local_coords(state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1,
                                Eigen::Vector3d& v_out, Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
     sym::QuatLocalCoordinatesChain(q0, q1, &v_out, &D0, &D1);
   });
 }
 
-void BM_QuatLocalCoordsSymforceFirstOrder(benchmark::State& state) {
+void BM_QuatLocalCoords_SymforceFirstOrder(benchmark::State& state) {
   bench_local_coords(state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1,
                                Eigen::Vector3d& v_out, Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
     sym::QuatLocalCoordinatesFirstOrder(q0, q1, &v_out, &D0, &D1);
   });
 }
 
-void BM_QuatLocalCoordsWrenfold(benchmark::State& state) {
+void BM_QuatLocalCoords_Wrenfold(benchmark::State& state) {
   bench_local_coords(state, [](auto&&... args) {
     gen::quat_local_coordinates<double>(std::forward<decltype(args)>(args)...);
   });
 }
 
-void BM_QuatLocalCoordsSFFOWrenfold(benchmark::State& state) {
+void BM_QuatLocalCoords_SFOWrenfold(benchmark::State& state) {
   bench_local_coords(state, [](auto&&... args) {
     gen::quat_local_coordinates_sffo<double>(std::forward<decltype(args)>(args)...);
   });
 }
 
-void BM_QuatLocalCoordsCeres(benchmark::State& state) {
+void BM_QuatLocalCoords_Ceres(benchmark::State& state) {
   const auto cost_function =
       utils::make_ceres_cost_function<autodiff_ceres::LocalCoordinatesError, 3, 4, 4>();
 
@@ -132,7 +132,7 @@ void BM_QuatLocalCoordsCeres(benchmark::State& state) {
       });
 }
 
-void BM_QuatInterpolationHandwritten(benchmark::State& state) {
+void BM_QuatInterpolation_Handwritten(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
                 Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
@@ -140,7 +140,7 @@ void BM_QuatInterpolationHandwritten(benchmark::State& state) {
       });
 }
 
-void BM_QuatInterpolationSymforceChain(benchmark::State& state) {
+void BM_QuatInterpolation_SymforceChain(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
                 Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
@@ -148,7 +148,7 @@ void BM_QuatInterpolationSymforceChain(benchmark::State& state) {
       });
 }
 
-void BM_QuatInterpolationSymforceFirstOrder(benchmark::State& state) {
+void BM_QuatInterpolation_SymforceFirstOrder(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
                 Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
@@ -156,14 +156,14 @@ void BM_QuatInterpolationSymforceFirstOrder(benchmark::State& state) {
       });
 }
 
-void BM_QuatInterpolationWrenfold(benchmark::State& state) {
+void BM_QuatInterpolation_Wrenfold(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
                 Eigen::Matrix3d& D0,
                 Eigen::Matrix3d& D1) { gen::quat_interpolation(q0, q1, 0.312, q_out, D0, D1); });
 }
 
-void BM_QuatInterpolationNoConditionalWrenfold(benchmark::State& state) {
+void BM_QuatInterpolation_NoConditionalWrenfold(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
                 Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
@@ -171,7 +171,7 @@ void BM_QuatInterpolationNoConditionalWrenfold(benchmark::State& state) {
       });
 }
 
-void BM_QuatInterpolationSFFOWrenfold(benchmark::State& state) {
+void BM_QuatInterpolation_SFOWrenfold(benchmark::State& state) {
   bench_quat_interpolation(
       state, [](const Eigen::Vector4d& q0, const Eigen::Vector4d& q1, Eigen::Vector4d& q_out,
                 Eigen::Matrix3d& D0, Eigen::Matrix3d& D1) {
@@ -179,7 +179,7 @@ void BM_QuatInterpolationSFFOWrenfold(benchmark::State& state) {
       });
 }
 
-void BM_QuatInterpolationCeres(benchmark::State& state) {
+void BM_QuatInterpolation_Ceres(benchmark::State& state) {
   const auto cost_function =
       utils::make_ceres_cost_function<autodiff_ceres::QuatInterpolationError, 4, 4, 4>(0.312);
 
@@ -200,21 +200,21 @@ void BM_QuatInterpolationCeres(benchmark::State& state) {
       });
 }
 
-BENCHMARK(BM_QuatInterpolationHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatInterpolationSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatInterpolationSymforceFirstOrder)
+BENCHMARK(BM_QuatInterpolation_Handwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatInterpolation_SymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatInterpolation_SymforceFirstOrder)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatInterpolationWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatInterpolationNoConditionalWrenfold)
+BENCHMARK(BM_QuatInterpolation_Wrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatInterpolation_NoConditionalWrenfold)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatInterpolationSFFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatInterpolationCeres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatInterpolation_SFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatInterpolation_Ceres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 
-BENCHMARK(BM_QuatLocalCoordsHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatLocalCoordsSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatLocalCoordsSymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatLocalCoordsWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatLocalCoordsSFFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatLocalCoordsCeres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatLocalCoords_Handwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatLocalCoords_SymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatLocalCoords_SymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatLocalCoords_Wrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatLocalCoords_SFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatLocalCoords_Ceres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
