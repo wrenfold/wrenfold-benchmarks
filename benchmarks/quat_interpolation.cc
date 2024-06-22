@@ -206,9 +206,11 @@ BENCHMARK(BM_QuatInterpolation_SymforceFirstOrder)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolation_Wrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+#if 0
 BENCHMARK(BM_QuatInterpolation_NoConditionalWrenfold)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
+#endif
 BENCHMARK(BM_QuatInterpolation_SFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolation_Ceres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 

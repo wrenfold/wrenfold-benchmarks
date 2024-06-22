@@ -6,6 +6,8 @@
 
 namespace handwritten {
 
+// TODO: We could probably further optimize this method by working out the SO(3) tangent
+// derivatives directly, instead of going through the quaternion multiplication.
 inline Eigen::Quaterniond quaternion_mul(const Eigen::Quaterniond& q_a,
                                          const Eigen::Quaterniond& q_b,
                                          Eigen::Matrix<double, 4, 4>* D_a,
