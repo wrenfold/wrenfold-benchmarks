@@ -23,7 +23,7 @@ def plot_samples(
     """Plot all times for a given benchmark."""
 
     times_dict = collections.OrderedDict(sorted(samples))
-    wrenfold_time = times_dict.pop("Wrenfold")
+    wrenfold_time = times_dict["Wrenfold"]
 
     names = list(times_dict.keys())
     times = [t / wrenfold_time for t in times_dict.values()]
@@ -32,6 +32,8 @@ def plot_samples(
     fig = go.Figure()
     fig.add_trace(
         go.Bar(x=names, y=times, marker=dict(color=colors, colorscale="viridis"), legend='legend'))
+
+    fig.add_hline(y=1, line_dash="dot")
 
     fig.update_layout(
         title=f"Benchmark: {benchmark_name}", xaxis_title="Variant", yaxis_title="Relative time")

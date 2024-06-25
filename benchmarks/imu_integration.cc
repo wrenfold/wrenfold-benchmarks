@@ -204,8 +204,11 @@ void BM_ImuIntegration_Ceres(benchmark::State& state) {
 }
 
 BENCHMARK(BM_ImuIntegration_SymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_ImuIntegration_SymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_ImuIntegration_Wrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_ImuIntegration_SFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_ImuIntegration_Handwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_ImuIntegration_Ceres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+
+#ifdef INCLUDE_FIRST_ORDER_IMPLEMENTATIONS
+BENCHMARK(BM_ImuIntegration_SymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_ImuIntegration_SFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+#endif  // INCLUDE_FIRST_ORDER_IMPLEMENTATIONS

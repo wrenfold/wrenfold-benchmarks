@@ -1,7 +1,7 @@
 """
-Generate projection equations for a rolling shutter camera.
+Generate projection equations for a constant-velocity rolling shutter camera.
 """
-
+import argparse
 import dataclasses
 import typing as T
 
@@ -159,6 +159,63 @@ def integrate_and_project(
     )
 
 
+def integrate_and_project_sffo(
+    world_R_imu_xyzw: Vector4,
+    world_t_imu: Vector3,
+    imu_R_cam_xyzw: Vector4,
+    imu_t_cam: Vector3,
+    angular_velocity_imu: Vector3,
+    world_v_imu: Vector3,
+    p_world: Vector3,
+    row_time: FloatScalar,
+    camera: CameraParams,
+):
+    """Integrate and project using the SymForce first-order expressions."""
+    from symforce_utils import configure_symforce
+
+    configure_symforce()
+
+    from rolling_shutter_camera_expressions_sf import integrate_and_project as \
+        integrate_and_project_sf
+
+    # We can't pass elements of `CameraParams` into SymForce, so instead generate substitute
+    # variables and pass those.
+    camera_sub_vars = sym.symbols('fx, fy, cx, cy, k1, k2, k3, p1, p2', real=True)
+
+    values = integrate_and_project_sf(
+        world_R_imu_xyzw=to_sympy(world_R_imu_xyzw),
+        world_t_imu=to_sympy(world_t_imu),
+        imu_R_cam_xyzw=to_sympy(imu_R_cam_xyzw),
+        imu_t_cam=to_sympy(imu_t_cam),
+        angular_velocity_imu=to_sympy(angular_velocity_imu),
+        world_v_imu=to_sympy(world_v_imu),
+        p_world=to_sympy(p_world),
+        row_time=to_sympy(row_time),
+        camera=to_sympy(sym.vector(*camera_sub_vars)),
+        jacobian_method="first_order")
+
+    def fs(thing) -> T.Union[sym.Expr, sym.MatrixExpr]:
+        # We need the output expressions to reference the input arguments passed in
+        # `camera`, so substitute those back in.
+        camera_params = camera.to_vector()
+        substitutions = list(zip(camera_sub_vars, camera_params))
+        return from_sympy(thing).subs(substitutions)
+
+    return (
+        OutputArg(fs(values["p_image"].mat), name="p_image"),
+        OutputArg(fs(values["D_world_R_imu"].mat), name="D_world_R_imu", is_optional=True),
+        OutputArg(fs(values["D_world_t_imu"].mat), name="D_world_t_imu", is_optional=True),
+        OutputArg(fs(values["D_imu_R_cam"].mat), name="D_imu_R_cam", is_optional=True),
+        OutputArg(fs(values["D_imu_t_cam"].mat), name="D_imu_t_cam", is_optional=True),
+        OutputArg(
+            fs(values["D_angular_velocity_imu"].mat),
+            name="D_angular_velocity_imu",
+            is_optional=True),
+        OutputArg(fs(values["D_world_v_imu"].mat), name="D_world_v_imu", is_optional=True),
+        OutputArg(fs(values["D_p_world"].mat), name="D_p_world", is_optional=True),
+    )
+
+
 class CustomGenerator(CppGenerator):
 
     def format_custom_type(self, element: CustomType) -> str:
@@ -169,12 +226,25 @@ class CustomGenerator(CppGenerator):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        '--symforce',
+        action='store_true',
+        help='Include the SymForce first-order implementation (pretty slow)')
+    args = parser.parse_args()
+
     output_dir = get_output_dir("rolling_shutter_camera") / "wf"
     generate_wrenfold_function(
         integrate_and_project,
         output_dir=output_dir,
         generator=CustomGenerator(),
     )
+
+    if args.symforce:
+        # Because of slow SymPy evaluation, we have to wait a while here.
+        print('Generating integrate_and_project_sffo, this takes several minutes...')
+        generate_wrenfold_function(
+            integrate_and_project_sffo, output_dir=output_dir, generator=CustomGenerator())
 
 
 if __name__ == "__main__":

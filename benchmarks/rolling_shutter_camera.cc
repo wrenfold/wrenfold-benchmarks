@@ -13,6 +13,7 @@
 #include "generated/rolling_shutter_camera/sf/integrate_and_project_chain.h"
 #include "generated/rolling_shutter_camera/sf/integrate_and_project_first_order.h"
 #include "generated/rolling_shutter_camera/wf/integrate_and_project.h"
+#include "generated/rolling_shutter_camera/wf/integrate_and_project_sffo.h"
 
 #include "ceres_utils.h"
 #include "rolling_shutter_camera_ceres.h"
@@ -141,6 +142,12 @@ void BM_RollingShutterCamera_Wrenfold(benchmark::State& state) {
   });
 }
 
+void BM_RollingShutterCamera_SFOWrenfold(benchmark::State& state) {
+  bench_projection(state, [](auto&&... args) {
+    gen::integrate_and_project_sffo<double>(std::forward<decltype(args)>(args)...);
+  });
+}
+
 void BM_RollingShutterCamera_Ceres(benchmark::State& state) {
   double row_time{};
   camera_params_t intrinsics{};
@@ -195,8 +202,12 @@ void BM_RollingShutterCamera_Ceres(benchmark::State& state) {
 }
 
 BENCHMARK(BM_RollingShutterCamera_SymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_RollingShutterCamera_Wrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_RollingShutterCamera_Ceres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+
+#ifdef INCLUDE_FIRST_ORDER_IMPLEMENTATIONS
 BENCHMARK(BM_RollingShutterCamera_SymforceFirstOrder)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_RollingShutterCamera_Wrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_RollingShutterCamera_Ceres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_RollingShutterCamera_SFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+#endif  // INCLUDE_FIRST_ORDER_IMPLEMENTATIONS

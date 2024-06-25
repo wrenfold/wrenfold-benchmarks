@@ -202,21 +202,30 @@ void BM_QuatInterpolation_Ceres(benchmark::State& state) {
 
 BENCHMARK(BM_QuatInterpolation_Handwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolation_SymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatInterpolation_SymforceFirstOrder)
-    ->Iterations(1000000)
-    ->Unit(benchmark::kNanosecond);
+
 BENCHMARK(BM_QuatInterpolation_Wrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatInterpolation_Ceres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+
+// Optional implementation w/o the conditional logic.
 #if 0
 BENCHMARK(BM_QuatInterpolation_NoConditionalWrenfold)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
 #endif
+
+#ifdef INCLUDE_FIRST_ORDER_IMPLEMENTATIONS
+BENCHMARK(BM_QuatInterpolation_SymforceFirstOrder)
+    ->Iterations(1000000)
+    ->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatInterpolation_SFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatInterpolation_Ceres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+#endif
 
 BENCHMARK(BM_QuatLocalCoords_Handwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatLocalCoords_SymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatLocalCoords_SymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatLocalCoords_Wrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_QuatLocalCoords_SFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
 BENCHMARK(BM_QuatLocalCoords_Ceres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+
+#ifdef INCLUDE_FIRST_ORDER_IMPLEMENTATIONS
+BENCHMARK(BM_QuatLocalCoords_SymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_QuatLocalCoords_SFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+#endif
