@@ -109,7 +109,11 @@ def quat_interpolation_sffo(q0_xyzw: Vector4, q1_xyzw: Vector4, alpha: FloatScal
     from quat_expressions_sf import quat_interpolate as quat_interpolate_sf
 
     values = quat_interpolate_sf(
-        to_sympy(q0_xyzw), to_sympy(q1_xyzw), alpha=to_sympy(alpha), jacobian_method="first_order")
+        to_sympy(q0_xyzw),
+        to_sympy(q1_xyzw),
+        alpha=to_sympy(alpha),
+        jacobian_method="first_order",
+    )
     return (
         OutputArg(from_sympy(values["q_out"].mat), name="q_out"),
         OutputArg(from_sympy(values["D0"].mat), name="d0", is_optional=True),
@@ -120,17 +124,13 @@ def quat_interpolation_sffo(q0_xyzw: Vector4, q1_xyzw: Vector4, alpha: FloatScal
 def main():
     output_dir = get_output_dir("quat_interpolation") / "wf"
 
-    params = OptimizationParams()
-    params.factorization_passes = 3
-    generate_wrenfold_function(quat_local_coordinates, output_dir=output_dir, params=params)
-    generate_wrenfold_function(
-        quat_local_coordinates_no_conditional, output_dir=output_dir, params=params)
-    generate_wrenfold_function(quat_local_coordinates_sffo, output_dir=output_dir, params=params)
+    generate_wrenfold_function(quat_local_coordinates, output_dir=output_dir)
+    generate_wrenfold_function(quat_local_coordinates_no_conditional, output_dir=output_dir)
+    generate_wrenfold_function(quat_local_coordinates_sffo, output_dir=output_dir)
 
-    generate_wrenfold_function(quat_interpolation, output_dir=output_dir, params=params)
-    generate_wrenfold_function(
-        quat_interpolation_no_conditional, output_dir=output_dir, params=params)
-    generate_wrenfold_function(quat_interpolation_sffo, output_dir=output_dir, params=params)
+    generate_wrenfold_function(quat_interpolation, output_dir=output_dir)
+    generate_wrenfold_function(quat_interpolation_no_conditional, output_dir=output_dir)
+    generate_wrenfold_function(quat_interpolation_sffo, output_dir=output_dir)
 
 
 if __name__ == "__main__":

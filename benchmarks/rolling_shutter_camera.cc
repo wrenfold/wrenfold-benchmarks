@@ -13,6 +13,7 @@
 #include "generated/rolling_shutter_camera/sf/integrate_and_project_chain.h"
 #include "generated/rolling_shutter_camera/sf/integrate_and_project_first_order.h"
 #include "generated/rolling_shutter_camera/wf/integrate_and_project.h"
+#include "generated/rolling_shutter_camera/wf/integrate_and_project_sffo.h"
 
 #include "ceres_utils.h"
 #include "rolling_shutter_camera_ceres.h"
@@ -89,7 +90,7 @@ void bench_projection(benchmark::State& state, F&& func) {
   }
 }
 
-void BM_RollingShutterCameraSymforceChain(benchmark::State& state) {
+void BM_RollingShutterCamera_SymforceChain(benchmark::State& state) {
   bench_projection(
       state,
       [](const Eigen::Quaterniond& world_R_imu_xyzw, const Eigen::Matrix<double, 3, 1>& world_t_imu,
@@ -112,7 +113,7 @@ void BM_RollingShutterCameraSymforceChain(benchmark::State& state) {
       });
 }
 
-void BM_RollingShutterCameraSymforceFirstOrder(benchmark::State& state) {
+void BM_RollingShutterCamera_SymforceFirstOrder(benchmark::State& state) {
   bench_projection(
       state,
       [](const Eigen::Quaterniond& world_R_imu_xyzw, const Eigen::Matrix<double, 3, 1>& world_t_imu,
@@ -135,13 +136,19 @@ void BM_RollingShutterCameraSymforceFirstOrder(benchmark::State& state) {
       });
 }
 
-void BM_RollingShutterCameraWrenfold(benchmark::State& state) {
+void BM_RollingShutterCamera_Wrenfold(benchmark::State& state) {
   bench_projection(state, [](auto&&... args) {
     gen::integrate_and_project<double>(std::forward<decltype(args)>(args)...);
   });
 }
 
-void BM_RollingShutterCameraCeres(benchmark::State& state) {
+void BM_RollingShutterCamera_SFOWrenfold(benchmark::State& state) {
+  bench_projection(state, [](auto&&... args) {
+    gen::integrate_and_project_sffo<double>(std::forward<decltype(args)>(args)...);
+  });
+}
+
+void BM_RollingShutterCamera_Ceres(benchmark::State& state) {
   double row_time{};
   camera_params_t intrinsics{};
   const auto cost_function =
@@ -194,9 +201,13 @@ void BM_RollingShutterCameraCeres(benchmark::State& state) {
       });
 }
 
-BENCHMARK(BM_RollingShutterCameraSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_RollingShutterCameraSymforceFirstOrder)
+BENCHMARK(BM_RollingShutterCamera_SymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_RollingShutterCamera_Wrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_RollingShutterCamera_Ceres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+
+#ifdef INCLUDE_FIRST_ORDER_IMPLEMENTATIONS
+BENCHMARK(BM_RollingShutterCamera_SymforceFirstOrder)
     ->Iterations(1000000)
     ->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_RollingShutterCameraWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_RollingShutterCameraCeres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_RollingShutterCamera_SFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+#endif  // INCLUDE_FIRST_ORDER_IMPLEMENTATIONS

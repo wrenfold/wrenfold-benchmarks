@@ -8,7 +8,7 @@
 namespace autodiff_ceres {
 
 struct ImuIntegration {
-    // We store these as pointers so we can update them in the benchmark loop.
+  // We store these as pointers so we can update them in the benchmark loop.
   explicit constexpr ImuIntegration(const double* dt,
                                     const Eigen::Matrix<double, 6, 1>* meas) noexcept
       : dt_(dt), meas_(meas) {}

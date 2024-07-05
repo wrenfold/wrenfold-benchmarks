@@ -55,7 +55,8 @@ struct RollingShutterCameraProjection {
     const T& x = p_image_plane.x();
     const T& y = p_image_plane.y();
     const T xy = x * y;
-    const T radial_coeff = (T(1) + intrinsics_->k1 * r2 + intrinsics_->k2 * r4 + intrinsics_->k3 * r6);
+    const T radial_coeff =
+        (T(1) + intrinsics_->k1 * r2 + intrinsics_->k2 * r4 + intrinsics_->k3 * r6);
     const T x_d =
         radial_coeff * x + T(2) * intrinsics_->p1 * xy + intrinsics_->p2 * (r2 + T(2) * x * x);
     const T y_d =

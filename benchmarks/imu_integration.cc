@@ -11,10 +11,10 @@
 #include "generated/imu_integration/wf/integrate_imu.h"
 #include "generated/imu_integration/wf/integrate_imu_sffo.h"
 
+#include "ceres_utils.h"
 #include "imu_integration_ceres.h"
 #include "imu_integration_handwritten.h"
 #include "quat_interpolation_handwritten.h"
-#include "ceres_utils.h"
 
 struct integration_input {
   Eigen::Vector4d i_R_j;
@@ -77,7 +77,7 @@ void bench_imu_integration(benchmark::State& state, F&& func) {
   }
 }
 
-void BM_ImuIntegrationSymforceChain(benchmark::State& state) {
+void BM_ImuIntegration_SymforceChain(benchmark::State& state) {
   bench_imu_integration(
       state,
       [](const Eigen::Matrix<double, 4, 1>& i_R_j_xyzw, const Eigen::Matrix<double, 3, 1>& i_p_j,
@@ -96,7 +96,7 @@ void BM_ImuIntegrationSymforceChain(benchmark::State& state) {
       });
 }
 
-void BM_ImuIntegrationSymforceFirstOrder(benchmark::State& state) {
+void BM_ImuIntegration_SymforceFirstOrder(benchmark::State& state) {
   bench_imu_integration(
       state,
       [](const Eigen::Matrix<double, 4, 1>& i_R_j_xyzw, const Eigen::Matrix<double, 3, 1>& i_p_j,
@@ -115,19 +115,19 @@ void BM_ImuIntegrationSymforceFirstOrder(benchmark::State& state) {
       });
 }
 
-void BM_ImuIntegrationWrenfold(benchmark::State& state) {
+void BM_ImuIntegration_Wrenfold(benchmark::State& state) {
   bench_imu_integration(state, [](auto&&... args) {
     gen::integrate_imu<double>(std::forward<decltype(args)>(args)...);
   });
 }
 
-void BM_ImuIntegrationSFFOWrenfold(benchmark::State& state) {
+void BM_ImuIntegration_SFOWrenfold(benchmark::State& state) {
   bench_imu_integration(state, [](auto&&... args) {
     gen::integrate_imu_sffo<double>(std::forward<decltype(args)>(args)...);
   });
 }
 
-void BM_ImuIntegrationHandwritten(benchmark::State& state) {
+void BM_ImuIntegration_Handwritten(benchmark::State& state) {
   bench_imu_integration(
       state,
       [](const Eigen::Matrix<double, 4, 1>& i_R_j_xyzw, const Eigen::Matrix<double, 3, 1>& i_p_j,
@@ -145,7 +145,7 @@ void BM_ImuIntegrationHandwritten(benchmark::State& state) {
       });
 }
 
-void BM_ImuIntegrationCeres(benchmark::State& state) {
+void BM_ImuIntegration_Ceres(benchmark::State& state) {
   double dt;
   Eigen::Matrix<double, 6, 1> meas;
   const auto cost_function =
@@ -203,9 +203,12 @@ void BM_ImuIntegrationCeres(benchmark::State& state) {
       });
 }
 
-BENCHMARK(BM_ImuIntegrationSymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_ImuIntegrationSymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_ImuIntegrationWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_ImuIntegrationSFFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_ImuIntegrationHandwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
-BENCHMARK(BM_ImuIntegrationCeres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_ImuIntegration_SymforceChain)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_ImuIntegration_Wrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_ImuIntegration_Handwritten)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_ImuIntegration_Ceres)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+
+#ifdef INCLUDE_FIRST_ORDER_IMPLEMENTATIONS
+BENCHMARK(BM_ImuIntegration_SymforceFirstOrder)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+BENCHMARK(BM_ImuIntegration_SFOWrenfold)->Iterations(1000000)->Unit(benchmark::kNanosecond);
+#endif  // INCLUDE_FIRST_ORDER_IMPLEMENTATIONS
