@@ -1,5 +1,7 @@
 # wrenfold-benchmarks
 
+See a summary of results [here](https://wrenfold.org/performance.html).
+
 This repository contains runtime benchmarks for wrenfold-generated functions. We compare to [SymForce](https://symforce.org) and some handwritten implementations. When considering these benchmarks, it is important to remember that **all** of the following factors can materially impact the results:
 - Choice of compiler and compiler version.
 - Selected CPU features (ie. AVX, SSE). For example, enabling `-march=native` can improve _or_ pessimize a given implementation.
@@ -11,7 +13,7 @@ As with all performance assessment, **your mileage may vary** and there is no pe
 
 - The original python symbolic implementations can be found in the [scripts](/scripts) directory.
 - SymForce outputs were last updated using version `0.9.0`.
-- For SymForce generated methods, we compare to both "chain rule" and "first order approximation" versions of the generated functions. See sections `B.1` and `B.2` of the [paper](https://arxiv.org/abs/2204.07889). wrenfold outputs are always computed via the chain-rule method.
+- For SymForce generated methods, we compare to chain-rule versions of the generated functions. See sections `B.1` and `B.2` of the [paper](https://arxiv.org/abs/2204.07889).
 
 ## Building
 
@@ -31,4 +33,10 @@ cmake --build .
 
 ## Updating the generated functions
 
-TODO: Fill out this section.
+Functions can be updated by running:
+
+```bash
+python scripts/gen_all.py
+```
+
+Both `wrenfold` and `symforce` must be installed in your python environment.
